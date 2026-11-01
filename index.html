@@ -1,199 +1,1272 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pentatonic Jam Trainer v15</title><style>body{background:#101827;color:#f1f5f9;font:16px system-ui;margin:0;padding:24px}main{max-width:1150px;margin:auto}h1{margin-bottom:4px}.muted{color:#a8b6cb}.panel{background:#1c293d;border:1px solid #35445c;border-radius:16px;padding:18px;margin:16px 0}button,select,input{font:inherit}button,select{background:#304461;color:white;border:1px solid #5a6d89;border-radius:8px;padding:9px 14px;cursor:pointer}button.active{background:#1c7d59}button:disabled{opacity:.4}.controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center}.chords{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}.chord{padding:16px;text-align:center;border-radius:10px;background:#2a3a50;font-size:24px;font-weight:bold}.chord{cursor:pointer;border:2px solid transparent}.chord:focus-visible{outline:3px solid #fff}.chord.selected{border-color:#fbbf24}.chord.on{background:#13835c;box-shadow:0 0 0 2px #8df3bf}.legend{display:flex;gap:20px;flex-wrap:wrap;margin-top:12px}.dot{display:inline-block;width:13px;height:13px;border-radius:50%;margin-right:6px}.scroll{overflow-x:auto}svg{display:block;min-width:730px;width:100%;height:auto}label{display:inline-flex;align-items:center;gap:8px}input[type=range]{width:130px}small{color:#b9c6d8}#status{font-weight:bold;color:#a6f3ca}@media(max-width:600px){body{padding:12px}.chord{padding:10px;font-size:19px}} .filterBtn{display:inline-flex;align-items:center;background:#25364d;border:2px solid #53647d;padding:9px 12px}.filterBtn.active{border-color:#fbbf24;background:#425270;box-shadow:0 0 0 1px #fbbf24}.filterBtn:focus-visible{outline:3px solid white} .fingerLegend{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:15px;background:#152238;border-radius:9px;padding:12px}.fingerLegend span{background:#314560;border-radius:7px;padding:6px 9px} .leadDot{filter:drop-shadow(0 0 5px #fff)} .demoNote{font-size:20px;font-weight:800;color:#fbbf24} .steps{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}.steps span{border:1px solid #5a6d89;border-radius:7px;padding:5px 9px}.steps span.now{background:#d97706;color:#111827} .practiceBtn{background:#314560}.practiceBtn.active{background:#166b52;border-color:#86efac}.boxTrainer{background:#14243a;border:1px solid #466182;border-radius:12px;padding:14px;margin:14px 0}.boxBtn{min-width:110px}.boxBtn.active{background:#116d54;border-color:#a7f3d0}.noteLine{font-size:18px;color:#fde68a;font-weight:700}.hint{font-size:13px;color:#bac8dd} </style></head><body><main><h1>🎸 Pentatonic Jam Trainer</h1><p class="muted">Original-key song loops · automatic pentatonic transposition · root-note navigation</p><section class="panel"><div class="controls"><label>Loop / song <select id="progression">
-<optgroup label="Practice progressions — G major / E minor">
-<option value="G,D,Em,C" data-key="G">Classic rock · G – D – Em – C</option>
-<option value="Em,C,G,D" data-key="G">Minor rock · Em – C – G – D</option>
-<option value="G,Em,C,D" data-key="G">Acoustic · G – Em – C – D</option>
-</optgroup>
-<optgroup label="Song-inspired loops — original keys">
-<option value="E,B,C#m,A" data-key="E">Journey · Don't Stop Believin' — E major</option>
-<option value="D,A,Bm,G" data-key="D">U2 · With or Without You — D major</option>
-<option value="D,A,Bm,G" data-key="D">Bryan Adams · Summer of '69 — D major (practice loop)</option>
-<option value="Em,C,D,Em" data-key="G">Bon Jovi · Livin' on a Prayer — E minor (practice loop)</option>
-<option value="G,D,C,G" data-key="G">Eagles · Take It Easy — G major (practice loop)</option>
-<option value="D,C,G,D" data-key="G">Boston · More Than a Feeling — G major (practice loop)</option>
-<option value="C,G,Am,F" data-key="C">CCR · Have You Ever Seen the Rain — C major (practice loop)</option>
-<option value="B,G#m,E,F#" data-key="B">Journey · Faithfully — B major (practice loop)</option>
-<option value="G,C,D,G" data-key="G">Country / folk · I–IV–V–I — G major</option>
-<option value="Em,D,C,D" data-key="G">Arena rock · descending minor — E minor</option>
-<option value="G,Em,Am,D" data-key="G">Ballad · I–vi–ii–V — G major</option>
-</optgroup></select></label><label>Key <strong id="keyReadout">G major / E minor</strong></label><label>Tempo <input type="range" id="tempo" min="55" max="150" value="85"><output id="bpm">85 BPM</output></label><label>Strumming <select id="style">
-<option value="rock">Classic rock eighths</option><option value="arena">Arena rock</option>
-<option value="acoustic">Acoustic folk</option><option value="ballad">Soft rock ballad</option>
-<option value="country">Country shuffle</option><option value="pop">Pop rock sixteenths</option>
-<option value="reggae">Reggae offbeats</option><option value="blues">Blues shuffle</option>
-<option value="power">Power-chord rock</option><option value="arpeggio">Arpeggiated ballad</option>
-<option value="pulse">Soft chord pulse</option></select></label>
-<label>Guitar tone <select id="guitarTone"><option value="acoustic">Acoustic strings</option><option value="clean">Clean electric</option><option value="crunch">Crunch electric</option><option value="drive">Driven electric</option></select></label>
-<label>Drum groove <select id="drumGroove"><option value="rock">Classic rock</option><option value="arena">Arena rock</option><option value="ballad">Soft ballad</option><option value="shuffle">Blues shuffle</option><option value="country">Country</option><option value="pop">Pop rock</option><option value="off">Off</option></select></label>
-<label><input type="checkbox" id="kickOn" checked> Kick</label>
-<label><input type="checkbox" id="snareOn" checked> Snare</label>
-<label><input type="checkbox" id="hatOn" checked> Hi-hat</label>
-<label><input type="checkbox" id="crashOn"> Crash</label>
-<label>Guitar <input id="guitarVolume" type="range" min="0" max="100" value="70" style="width:85px"></label>
-<label>Bass <input id="bassVolume" type="range" min="0" max="100" value="55" style="width:85px"></label>
-<label>Drums <input id="drumVolume" type="range" min="0" max="100" value="65" style="width:85px"></label>
-<label><input type="checkbox" id="fillsOn" checked> Four-bar drum fills</label>
-<label><input type="checkbox" id="countIn"> Four-beat count-in</label>
-<label><input type="checkbox" id="click"> Metronome</label></div><div class="controls" style="margin-top:15px"><button id="play">▶ Play backing track</button><button id="stop">■ Stop</button><span id="status">Ready</span></div><p><small><strong>New:</strong> Click any chord below to lock both the fretboard and backing track on that chord. Click “Resume progression” to return to automatic changes.</small></p><div class="chords" id="chords"></div><div class="controls" style="margin-top:12px"><button id="resume">↻ Resume progression</button><button id="bm">Bm root practice</button><span id="selection" class="muted">Following progression</span></div><p><small>4 beats per chord, continuous looping. Song-inspired arrangements use their listed original keys but simplified practice progressions, not full song transcriptions or recordings. Fretboard, chord tones, lead demonstrations, and box positions follow the selected key. Audio starts after you press Play. Change tempo or progression while playing.</small></p></section><section class="panel"><div class="controls"><label>Fret range <select id="range"><option value="12" selected>0–12 (default)</option><option value="24">0–24</option></select></label><label>Highlight <select id="highlight"><option value="roots">Current chord roots + pentatonic</option><option value="tones">Current chord tones + pentatonic</option><option value="pent">Pentatonic only</option><option value="g">G roots only</option><option value="e">E roots only</option></select></label><label><input type="checkbox" id="names" checked> Note names</label></div><label style="margin:12px 0">Fretboard labels <select id="fingerDisplay"><option value="notes">Note names</option><option value="fingers">Suggested fingers (1–4)</option><option value="both">Note + finger</option></select></label><div class="scroll"><svg id="neck" role="img" aria-label="Transposable major and relative minor pentatonic fretboard"></svg></div><div class="legend" id="noteFilters" aria-label="Choose which notes to see and hear"><button type="button" data-filter="pent" class="filterBtn active"><i class="dot" style="background:#347cdb"></i>Pentatonic only</button><button type="button" data-filter="roots" class="filterBtn"><i class="dot" style="background:#15a56e"></i>Chord roots only</button><button type="button" data-filter="extras" class="filterBtn"><i class="dot" style="background:#d99a31"></i>Other chord tones only</button><button type="button" data-filter="all" class="filterBtn"><i class="dot" style="background:linear-gradient(90deg,#347cdb 33%,#15a56e 33%,#15a56e 66%,#d99a31 66%)"></i>All notes</button></div><div class="fingerLegend"><strong>Fretting-hand finger guide:</strong> <span>1 = Index</span><span>2 = Middle</span><span>3 = Ring</span><span>4 = Pinky</span><span>0 = Open string</span></div><p class="hint" id="fingerHint">Finger numbers follow the selected pentatonic shape. Some shapes use a small position shift; never force a painful stretch. Shape positions follow the selected song key.</p><p class="hint" id="filterHelp" aria-live="polite">Pentatonic notes update automatically with the selected song key.</p><p id="tip" class="muted"></p></section><section class="panel"><h2>🎯 Chord-by-Chord Scale Lab</h2><p class="muted">Freeze on one chord, see every pentatonic note plus its chord tones, and climb up or down a playable fretboard zone. Choose the chord and one of the five actual scale shapes; this works with or without backing audio.</p><div class="boxTrainer"><h3>Five pentatonic shapes — choose one</h3><div class="controls" id="boxButtons"></div><div class="controls" style="margin-top:12px"><label>Box 1 octave <select id="boxOctave"><option value="0" selected>Open position</option><option value="12">12th fret</option></select></label><label><input type="checkbox" id="boxOnly" checked> Focus on this shape only</label></div><p id="boxGuide" class="hint"></p></div><div class="boxTrainer" id="handCoachPanel"><h3>✋ Hand Position Coach</h3><div class="controls"><label><input type="checkbox" id="handCoach" checked> Show home position and shift cues</label><label>Technique <select id="handMode"><option value="fixed">Learn the box (controlled shifts)</option><option value="fluid">Connect positions (slide practice)</option></select></label><label>Practice speed <input type="range" id="handTempo" min="40" max="120" step="5" value="65"><output id="handBpm">65 BPM</output></label></div><p class="hint">Light green shading = comfortable hand area. Orange outline = reach/position adjustment. Gold = current note. Finger numbers refer to the fretting hand.</p><p id="handInstruction" class="noteLine" aria-live="polite">Select a shape, then press Next note or Play scale.</p></div><div class="controls" id="labChords"></div><div class="controls" style="margin-top:12px"><label style="display:none">Legacy fret zone <select id="labZone"><option value="0">Open–4</option><option value="5" selected>5–9</option><option value="10">10–14</option><option value="15">15–19</option><option value="20">20–24</option><option value="all">All frets (0–12)</option></select></label><label>Notes <select id="labNotes"><option value="pent">Pentatonic only</option><option value="tones">Pentatonic + all chord tones</option><option value="arpeggio">Chord tones only (arpeggio)</option></select></label><label>Direction <select id="labDirection"><option value="updown">Up then down</option><option value="up">Ascending</option><option value="down">Descending</option></select></label></div><div class="controls" style="margin-top:12px"><button id="labPlay">▶ Play scale</button><button id="labStop">■ Stop scale</button><button id="labNext">Next note</button><label><input type="checkbox" id="labAudio" checked> Hear notes</label></div><p class="noteLine" id="labReadout">Select a chord and press Play scale.</p><p class="hint">Gold = currently played note. Use the clickable filters under the fretboard to isolate blue pentatonic, green roots, amber chord tones, or all notes. Scale Lab uses the same fretboard above.</p></section><section class="panel"><h2>✨ Watch &amp; Play — Guided Lead Guitar</h2><p class="muted">A suggested eight-note melody for each chord. The gold dot moves along the neck as the lead notes sound. Watch it, then imitate it. Notes are mostly G major / E minor pentatonic; chord roots outside the scale are added as deliberate landing notes.</p><div class="controls"><label>Melody <select id="melodyStyle"><option value="melodic">Melodic / singable</option><option value="climb">Ascending & descending</option><option value="blues">Bluesy / rhythmic</option><option value="wide">Position shifting</option></select></label></div><div class="controls" style="margin-top:12px"><button id="demo" class="active">▶ Start guided melody</button><button id="pauseDemo">◼ Stop melody</button><button id="nextNote">Next note (manual)</button><label><input id="leadSound" type="checkbox" checked> Hear lead notes</label><label><input id="autoLead" type="checkbox" checked> Follow backing track</label></div><p class="demoNote" id="leadReadout">Choose Start guided melody, or Next note to practice without audio.</p><div class="steps" id="leadSteps"></div><small>For one-chord practice, click a chord above. The melody repeats over that chord. For the full song, click Resume progression. The backing track and lead share the same tempo.</small></section><section class="panel"><strong>Practice challenge</strong><p>On each chord change, land on the green root. Fill the spaces with blue pentatonic notes. Next, select “Current chord tones” and aim for the amber notes too. The C and F♯ chord tones are intentional additions beyond G major / E minor pentatonic.</p></section></main><script>
-const boxShapes=[
- [[12,15],[12,15],[12,14],[12,14],[12,14],[12,15]],
- [[15,17],[15,17],[14,16],[14,17],[14,17],[15,17]],
- [[17,19],[17,20],[16,19],[17,19],[17,19],[17,19]],
- [[19,22],[20,22],[19,21],[19,21],[19,22],[19,22]],
- [[22,24],[22,24],[21,24],[21,24],[22,24],[22,24]]
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pentatonic Jam Trainer v15</title>
+<style>
+body{background:#101827;color:#f1f5f9;font:16px system-ui;margin:0;padding:24px}
+main{max-width:1150px;margin:auto}
+h1{margin-bottom:4px}
+h2{margin-bottom:8px}
+.muted{color:#a8b6cb}
+.panel{background:#1c293d;border:1px solid #35445c;border-radius:16px;padding:18px;margin:16px 0}
+button,select,input{font:inherit}
+button,select{background:#304461;color:white;border:1px solid #5a6d89;border-radius:8px;padding:9px 14px;cursor:pointer}
+button.active{background:#1c7d59}
+button.primary{background:#1c7d59;border-color:#34d399;font-weight:700}
+button.primary:disabled{opacity:1;background:#166b52;cursor:default}
+button:disabled{opacity:.4}
+.controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.chords{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}
+.chord{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:14px 10px;text-align:center;border-radius:10px;background:#2a3a50;font-size:24px;font-weight:bold;cursor:pointer;border:2px solid transparent}
+.chord:focus-visible{outline:3px solid #fff}
+.chord.selected{border-color:#fbbf24}
+.chord.on{background:#13835c;box-shadow:0 0 0 2px #8df3bf}
+.chordName{line-height:1.1}
+.chordMeta{font-size:12px;font-weight:600;color:#d6e2f0}
+.chord.on .chordMeta{color:#f0fdf4}
+.pips{display:flex;gap:5px;margin-top:6px}
+.pips i,.beatRow i{width:8px;height:8px;border-radius:50%;background:#51627a;display:block}
+.chord.on .pips i{background:#0f3d32}
+.pips i.on,.beatRow i.on{background:#8df3bf;box-shadow:0 0 0 3px rgba(141,243,191,.25)}
+.legend{display:flex;gap:20px;flex-wrap:wrap;margin-top:12px}
+.dot{display:inline-block;width:13px;height:13px;border-radius:50%;margin-right:6px}
+.scroll{overflow-x:auto}
+svg{display:block;min-width:730px;width:100%;height:auto}
+label{display:inline-flex;align-items:center;gap:8px;max-width:100%}
+select{max-width:100%;min-width:0}
+.group,.setup,.panel{min-width:0}
+#progression{width:min(100%, 520px)}
+input[type=range]{width:130px}
+small,.hint{color:#b9c6d8}
+#status{font-weight:bold;color:#a6f3ca}
+.groupLabel{margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#a8b6cb}
+.setup{display:grid;grid-template-columns:1.15fr .85fr .95fr;gap:12px}
+.group{background:#152238;border-radius:12px;padding:12px}
+.group .controls{gap:8px}
+.nowbar{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;position:sticky;top:0;z-index:5;background:#14243a;border:1px solid #466182;border-radius:12px;padding:8px 12px;margin:14px 0;box-shadow:0 10px 24px rgba(0,0,0,.28)}
+.nowKicker{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#a8b6cb}
+.nowChord{font-size:36px;font-weight:800;line-height:.95;letter-spacing:-.03em;min-width:64px}
+.nowChord.count{color:#fbbf24}
+.nowMeta{color:#fde68a;font-weight:700}
+.beatRow{display:flex;gap:6px;margin:6px 0}
+.beatRow i{width:12px;height:12px}
+.nowActions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end}
+.filterBtn{display:inline-flex;align-items:center;background:#25364d;border:2px solid #53647d;padding:9px 12px}
+.filterBtn.active{border-color:#fbbf24;background:#425270;box-shadow:0 0 0 1px #fbbf24}
+.filterBtn:focus-visible{outline:3px solid white}
+.fingerLegend{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:15px;background:#152238;border-radius:9px;padding:12px}
+.fingerLegend span{background:#314560;border-radius:7px;padding:6px 9px}
+.demoNote{font-size:20px;font-weight:800;color:#fbbf24}
+.steps{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
+.steps span{border:1px solid #5a6d89;border-radius:7px;padding:5px 9px}
+.steps span.now{background:#d97706;color:#111827}
+.practiceBtn{background:#314560}
+.practiceBtn.active{background:#166b52;border-color:#86efac}
+.boxTrainer{background:#14243a;border:1px solid #466182;border-radius:12px;padding:14px;margin:14px 0}
+.boxBtn{min-width:110px}
+.boxBtn.active{background:#116d54;border-color:#a7f3d0}
+.noteLine{font-size:18px;color:#fde68a;font-weight:700}
+@media(max-width:900px){.setup,.nowbar{grid-template-columns:1fr}.nowActions{justify-content:flex-start}}
+@media(max-width:600px){body{padding:12px}.chord{padding:10px;font-size:19px}.nowChord{font-size:32px}h1{font-size:1.45rem}}
+</style>
+</head>
+<body>
+<main>
+<h1>🎸 Pentatonic Jam Trainer</h1>
+<p class="muted">Original-key song loops · automatic pentatonic transposition · root-note navigation</p>
+
+<div class="nowbar">
+  <div>
+    <div class="nowKicker" id="nowKicker">Ready</div>
+    <div class="nowChord" id="nowChord" aria-live="polite">G</div>
+    <div id="status">Ready</div>
+  </div>
+  <div>
+    <div class="nowMeta" id="nowMeta">Land on G</div>
+    <div class="beatRow" id="nowBeats" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <div class="hint" id="nowNext">Press play, then land on the green root at each change.</div>
+    <p class="hint" id="nowContext"><span id="keyReadout">G major / E minor</span> · <span id="nowFeel">85 BPM</span></p>
+  </div>
+  <div class="nowActions">
+    <button id="play" class="primary" type="button">▶ Play backing track</button>
+    <button id="stop" type="button">■ Stop</button>
+    <label>Tempo <input type="range" id="tempo" min="55" max="150" value="85"><output id="bpm">85 BPM</output></label>
+    <label><input type="checkbox" id="countIn"> Count-in</label>
+    <label><input type="checkbox" id="click"> Metronome</label>
+  </div>
+</div>
+
+<section class="panel">
+  <div class="setup">
+    <div class="group">
+      <p class="groupLabel">Song</p>
+      <div class="controls">
+        <label>Loop / song <select id="progression">
+          <optgroup label="Practice progressions — G major / E minor">
+            <option value="G,D,Em,C" data-key="G">Classic rock · G – D – Em – C</option>
+            <option value="Em,C,G,D" data-key="G">Minor rock · Em – C – G – D</option>
+            <option value="G,Em,C,D" data-key="G">Acoustic · G – Em – C – D</option>
+          </optgroup>
+          <optgroup label="Song-inspired loops — original keys">
+            <option value="E,B,C#m,A" data-key="E">Journey · Don't Stop Believin' — E major</option>
+            <option value="D,A,Bm,G" data-key="D">U2 · With or Without You — D major</option>
+            <option value="D,A,Bm,G" data-key="D">Bryan Adams · Summer of '69 — D major (practice loop)</option>
+            <option value="Em,C,D,Em" data-key="G">Bon Jovi · Livin' on a Prayer — E minor (practice loop)</option>
+            <option value="G,D,C,G" data-key="G">Eagles · Take It Easy — G major (practice loop)</option>
+            <option value="D,C,G,D" data-key="G">Boston · More Than a Feeling — G major (practice loop)</option>
+            <option value="C,G,Am,F" data-key="C">CCR · Have You Ever Seen the Rain — C major (practice loop)</option>
+            <option value="B,G#m,E,F#" data-key="B">Journey · Faithfully — B major (practice loop)</option>
+            <option value="G,C,D,G" data-key="G">Country / folk · I–IV–V–I — G major</option>
+            <option value="Em,D,C,D" data-key="G">Arena rock · descending minor — E minor</option>
+            <option value="G,Em,Am,D" data-key="G">Ballad · I–vi–ii–V — G major</option>
+          </optgroup>
+        </select></label>
+      </div>
+      <p class="hint">The key above follows the loop. Chords stay in the song’s original key.</p>
+    </div>
+    <div class="group">
+      <p class="groupLabel">Feel</p>
+      <div class="controls">
+        <label>Strumming <select id="style">
+          <option value="rock">Classic rock eighths</option>
+          <option value="arena">Arena rock</option>
+          <option value="acoustic">Acoustic folk</option>
+          <option value="ballad">Soft rock ballad</option>
+          <option value="country">Country shuffle</option>
+          <option value="pop">Pop rock sixteenths</option>
+          <option value="reggae">Reggae offbeats</option>
+          <option value="blues">Blues shuffle</option>
+          <option value="power">Power-chord rock</option>
+          <option value="arpeggio">Arpeggiated ballad</option>
+          <option value="pulse">Soft chord pulse</option>
+        </select></label>
+        <label>Guitar tone <select id="guitarTone">
+          <option value="acoustic">Acoustic strings</option>
+          <option value="clean">Clean electric</option>
+          <option value="crunch">Crunch electric</option>
+          <option value="drive">Driven electric</option>
+        </select></label>
+        <label>Drum groove <select id="drumGroove">
+          <option value="rock">Classic rock</option>
+          <option value="arena">Arena rock</option>
+          <option value="ballad">Soft ballad</option>
+          <option value="shuffle">Blues shuffle</option>
+          <option value="country">Country</option>
+          <option value="pop">Pop rock</option>
+          <option value="off">Off</option>
+        </select></label>
+      </div>
+    </div>
+    <div class="group">
+      <p class="groupLabel">Mix</p>
+      <div class="controls">
+        <label>Guitar <input id="guitarVolume" type="range" min="0" max="100" value="70"><output id="guitarVolOut">70</output></label>
+        <label>Bass <input id="bassVolume" type="range" min="0" max="100" value="55"><output id="bassVolOut">55</output></label>
+        <label>Drums <input id="drumVolume" type="range" min="0" max="100" value="65"><output id="drumVolOut">65</output></label>
+        <label><input type="checkbox" id="kickOn" checked> Kick</label>
+        <label><input type="checkbox" id="snareOn" checked> Snare</label>
+        <label><input type="checkbox" id="hatOn" checked> Hi-hat</label>
+        <label><input type="checkbox" id="crashOn"> Crash</label>
+        <label><input type="checkbox" id="fillsOn" checked> Four-bar drum fills</label>
+      </div>
+    </div>
+  </div>
+  <p class="hint" id="cue">Space plays and stops. Click a chord to freeze the neck and the track on it. Resume progression lets the loop move again.</p>
+  <div class="chords" id="chords"></div>
+  <div class="controls" style="margin-top:12px">
+    <button id="resume" type="button">↻ Resume progression</button>
+    <button id="bm" type="button">Practice iii · Bm</button>
+    <span id="selection" class="muted">Following the loop</span>
+  </div>
+  <p><small>4 beats per chord, continuous looping. Song-inspired arrangements use their listed original keys but simplified practice progressions, not full song transcriptions or recordings. Fretboard, chord tones, lead demonstrations, and box positions follow the selected key. Audio starts after you press Play. Change tempo, tone, or progression while playing.</small></p>
+</section>
+
+<section class="panel">
+  <div class="controls">
+    <label>Fret range <select id="range"><option value="12" selected>0–12 (default)</option><option value="24">0–24</option></select></label>
+    <label><input type="checkbox" id="names" checked> Show labels</label>
+    <label>Fretboard labels <select id="fingerDisplay">
+      <option value="notes">Note names</option>
+      <option value="fingers">Suggested fingers (1–4)</option>
+      <option value="both">Note + finger</option>
+    </select></label>
+  </div>
+  <p class="hint" id="neckCue">Green is the root to land on when the chord changes. Blue notes are the rest of the pentatonic. Amber notes are the other chord tones — turn them on with the filters below.</p>
+  <div class="scroll"><svg id="neck" role="img" aria-label="Transposable major and relative minor pentatonic fretboard"></svg></div>
+  <div class="legend" id="noteFilters" aria-label="Choose which notes to see and hear">
+    <button type="button" data-filter="pent" class="filterBtn active" aria-pressed="true"><i class="dot" style="background:#347cdb"></i>Pentatonic only</button>
+    <button type="button" data-filter="roots" class="filterBtn" aria-pressed="false"><i class="dot" style="background:#15a56e"></i>Chord roots only</button>
+    <button type="button" data-filter="extras" class="filterBtn" aria-pressed="false"><i class="dot" style="background:#d99a31"></i>Other chord tones only</button>
+    <button type="button" data-filter="arp" class="filterBtn" aria-pressed="false"><i class="dot" style="background:linear-gradient(90deg,#15a56e 50%,#d99a31 50%)"></i>Chord tones</button>
+    <button type="button" data-filter="all" class="filterBtn" aria-pressed="false"><i class="dot" style="background:linear-gradient(90deg,#347cdb 33%,#15a56e 33%,#15a56e 66%,#d99a31 66%)"></i>All notes</button>
+  </div>
+  <div class="fingerLegend"><strong>Fretting-hand finger guide:</strong> <span>1 = Index</span><span>2 = Middle</span><span>3 = Ring</span><span>4 = Pinky</span><span>0 = Open string</span></div>
+  <p class="hint" id="fingerHint">Finger numbers follow the selected pentatonic shape. Some shapes use a small position shift; never force a painful stretch. Shape positions follow the selected song key.</p>
+  <p class="hint" id="filterHelp" aria-live="polite">Pentatonic notes update automatically with the selected song key.</p>
+  <p id="tip" class="noteLine"></p>
+</section>
+
+<section class="panel">
+  <h2>🎯 Chord-by-Chord Scale Lab</h2>
+  <p class="muted">Freeze on one chord, see every pentatonic note plus its chord tones, and climb up or down a playable fretboard zone. Choose the chord and one of the five actual scale shapes. This works with or without the backing track.</p>
+  <div class="boxTrainer">
+    <h3>Five pentatonic shapes — choose one</h3>
+    <div class="controls" id="boxButtons"></div>
+    <div class="controls" style="margin-top:12px">
+      <label>Box 1 octave <select id="boxOctave"><option value="0" selected>Open position</option><option value="12">12th fret</option></select></label>
+      <label><input type="checkbox" id="boxOnly"> Focus on this shape only</label>
+    </div>
+    <p id="boxGuide" class="hint"></p>
+  </div>
+  <div class="boxTrainer" id="handCoachPanel">
+    <h3>✋ Hand Position Coach</h3>
+    <div class="controls">
+      <label><input type="checkbox" id="handCoach" checked> Show home position and shift cues</label>
+      <label>Technique <select id="handMode"><option value="fixed">Learn the box (controlled shifts)</option><option value="fluid">Connect positions (slide practice)</option></select></label>
+      <label>Practice speed <input type="range" id="handTempo" min="40" max="120" step="5" value="65"><output id="handBpm">65 BPM</output></label>
+    </div>
+    <p class="hint">Light green shading = comfortable hand area. Orange outline = reach/position adjustment. Gold = current note. Finger numbers refer to the fretting hand.</p>
+    <p id="handInstruction" class="noteLine" aria-live="polite">Select a shape, then press Next note or Play scale.</p>
+  </div>
+  <div class="controls" id="labChords"></div>
+  <div class="controls" style="margin-top:12px">
+    <label style="display:none">Legacy fret zone <select id="labZone"><option value="0">Open–4</option><option value="5" selected>5–9</option><option value="10">10–14</option><option value="15">15–19</option><option value="20">20–24</option><option value="all">All frets (0–12)</option></select></label>
+    <label>Neck notes <select id="labNotes" title="Uses the same filter as the buttons under the fretboard">
+      <option value="pent">Pentatonic only</option>
+      <option value="tones">Pentatonic + all chord tones</option>
+      <option value="arpeggio">Chord tones only (arpeggio)</option>
+    </select></label>
+    <label>Direction <select id="labDirection"><option value="updown">Up then down</option><option value="up">Ascending</option><option value="down">Descending</option></select></label>
+  </div>
+  <div class="controls" style="margin-top:12px">
+    <button id="labPlay" type="button">▶ Play scale</button>
+    <button id="labStop" type="button">■ Stop scale</button>
+    <button id="labNext" type="button">Next note</button>
+    <label><input type="checkbox" id="labAudio" checked> Hear notes</label>
+  </div>
+  <p class="noteLine" id="labReadout">Select a chord and press Play scale.</p>
+  <p class="hint">Gold = currently played note. Neck notes uses the same filter as the buttons under the fretboard. Scale Lab uses the fretboard above.</p>
+</section>
+
+<section class="panel">
+  <h2>✨ Watch &amp; Play — Guided Lead Guitar</h2>
+  <p class="muted" id="leadBlurb">A suggested eight-note melody for each chord. The gold dot moves along the neck as the lead notes sound. Watch it, then play it.</p>
+  <div class="controls">
+    <label>Melody <select id="melodyStyle">
+      <option value="melodic">Melodic / singable</option>
+      <option value="climb">Ascending &amp; descending</option>
+      <option value="blues">Bluesy / rhythmic</option>
+      <option value="wide">Position shifting</option>
+    </select></label>
+  </div>
+  <div class="controls" style="margin-top:12px">
+    <button id="demo" class="active" type="button">▶ Start guided melody</button>
+    <button id="pauseDemo" type="button">◼ Stop melody</button>
+    <button id="nextNote" type="button">Next note (manual)</button>
+    <label><input id="leadSound" type="checkbox" checked> Hear lead notes</label>
+    <label><input id="autoLead" type="checkbox" checked> Follow backing track</label>
+  </div>
+  <p class="demoNote" id="leadReadout">Choose Start guided melody, or Next note to practice without audio.</p>
+  <div class="steps" id="leadSteps"></div>
+  <small>For one-chord practice, click a chord above. The melody repeats over that chord. For the full song, click Resume progression. The backing track and lead share the same tempo. Uncheck Follow backing track to step with Next note only.</small>
+</section>
+
+<section class="panel">
+  <strong>Practice challenge</strong>
+  <p id="challengeText">On each chord change, land on the green root. Fill the spaces with blue pentatonic notes.</p>
+</section>
+</main>
+<script>
+window.addEventListener('error', e => {
+  const el = document.getElementById('status');
+  if (el) el.textContent = 'Error: ' + e.message;
+});
+
+const boxShapes = [
+  [[12,15],[12,15],[12,14],[12,14],[12,14],[12,15]],
+  [[15,17],[15,17],[14,16],[14,17],[14,17],[15,17]],
+  [[17,19],[17,20],[16,19],[17,19],[17,19],[17,19]],
+  [[19,22],[20,22],[19,21],[19,21],[19,22],[19,22]],
+  [[22,24],[22,24],[21,24],[21,24],[22,24],[22,24]]
 ];
-let selectedBox=0;
-window.addEventListener("error",e=>{const el=document.getElementById("status");if(el)el.textContent="Error: "+e.message});
-const chrom=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
-const tuning=[4,11,7,2,9,4],pent=[4,7,9,11,2],chordNotes={},root={};
-const mod=n=>(n%12+12)%12;
-let keyShift=0;
-function chordParts(c){const m=/^([A-G](?:#|b)?)(m?)$/.exec(c);if(!m)throw Error('Unsupported chord '+c);const aliases={'Db':'C#','Eb':'D#','Gb':'F#','Ab':'G#','Bb':'A#'};return {pc:chrom.indexOf(aliases[m[1]]||m[1]),minor:m[2]==='m'};}
-function chordName(pc,minor){return chrom[mod(pc)]+(minor?'m':'')}
-function sourceName(c){let p=chordParts(c);return chordName(p.pc-keyShift,p.minor)}
-function refreshHarmony(){const opt=$('progression').selectedOptions[0];keyShift=mod(chrom.indexOf(opt.dataset.key)-7);pent.splice(0,pent.length,...[4,7,9,11,2].map(n=>mod(n+keyShift)));for(let c of [...new Set([...progression(),'Bm'])]){let p=chordParts(c);root[c]=p.pc;chordNotes[c]=[p.pc,mod(p.pc+(p.minor?3:4)),mod(p.pc+7)];}
-let tonic=chrom[mod(7+keyShift)],relative=chrom[mod(4+keyShift)]+'m';$('keyReadout').textContent=tonic+' major / '+relative+' minor';$('filterHelp').textContent='Pentatonic: '+pent.map(n=>chrom[n]).join(' · ')+'. Chord roots and tones update with the loop.';refreshMelody();}let noteFilter="pent";let selectedChord=null;let guided=false,leadPosition=null,manualIndex=0,leadTimers=[];let ctx=null,playing=false,beat=0,bar=0,nextTime=0,timer=null,master=null;const $=id=>document.getElementById(id);const progression=()=> $('progression').value.split(',');const active=()=>selectedChord||progression()[bar%progression().length];function selectChord(c){selectedChord=c;manualIndex=0;leadPosition=null;drawChords();neck();drawLeadSteps()}function drawChords(){ $('chords').innerHTML=progression().map((c,i)=>`<button type="button" class="chord ${selectedChord===c?'selected':''} ${!selectedChord&&i===bar&&playing?'on':''}" data-chord="${c}" aria-pressed="${selectedChord===c}">${c}<div style="font-size:12px;font-weight:normal">Bar ${i+1}</div></button>`).join('');document.querySelectorAll('[data-chord]').forEach(b=>b.onclick=()=>selectChord(b.dataset.chord));$('status').textContent=playing?`Playing ${progression()[bar%progression().length]} · beat ${beat+1}`:'Ready';$('selection').textContent=selectedChord?`Locked on ${selectedChord} · green dots show ${selectedChord} roots`:'Following progression';$('resume').disabled=!selectedChord;drawLeadSteps();$('bm').classList.toggle('active',selectedChord==='Bm');}function fingerFor(f,s){if(f===0)return '0';if(typeof selectedBox!=='undefined'&&s!==undefined){let entry=boxPositions()[s]||[];let ix=entry.indexOf(f);if(ix>=0)return String(boxFinger(selectedBox,s,ix));}return String(Math.min(4,Math.max(1,f%4||4)))}
-function displayLabel(n,f,s){let v=$("fingerDisplay").value;let finger=fingerFor(f,s);return v==="fingers"?finger:v==="both"?chrom[n]+"/"+finger:chrom[n]}
-function neck(){const max=+$('range').value,w=56+max*46,h=228,ns='http://www.w3.org/2000/svg',svg=$('neck');svg.setAttribute('viewBox',`0 0 ${w} ${h}`);svg.style.minWidth=max===24?'1200px':'730px';svg.innerHTML='';function el(tag,attrs,text){let x=document.createElementNS(ns,tag);for(let k in attrs)x.setAttribute(k,attrs[k]);if(text!==undefined)x.textContent=text;svg.append(x)}el('rect',{x:54,y:26,width:max*46,height:174,fill:'#b58a56',rx:4});for(let f=0;f<=max;f++){if(f)el('rect',{x:54+(f-1)*46,y:26,width:2.5,height:174,fill:'#d8e0e7'});el('text',{x:f?54+(f-.5)*46:31,y:17,fill:'white','font-size':12,'text-anchor':'middle'},f)}for(let s=0;s<6;s++){let y=39+s*29;el('line',{x1:54,y1:y,x2:54+max*46,y2:y,stroke:'#edf1f5','stroke-width':1+s*.3});el('text',{x:10,y:y+4,fill:'white','font-size':13},['e','B','G','D','A','E'][s]);for(let f=0;f<=max;f++){let n=(tuning[s]+f)%12,color=null;let chord=active();if(noteFilter==='pent')color=pent.includes(n)?'#347cdb':null;else if(noteFilter==='roots')color=n===root[chord]?'#15a56e':null;else if(noteFilter==='extras')color=chordNotes[chord].includes(n)&&n!==root[chord]?'#d99a31':null;else {color=pent.includes(n)?'#347cdb':null;if(chordNotes[chord].includes(n))color='#d99a31';if(n===root[chord])color='#15a56e';}if(color || (leadPosition&&leadPosition.s===s&&leadPosition.f===f&&filterAllows(n))){let isLead=leadPosition&&leadPosition.s===s&&leadPosition.f===f&&filterAllows(n);if(isLead)color='#fbbf24';let x=f?54+(f-.5)*46:38;el('circle',{cx:x,cy:y,r:isLead?17:12.5,fill:color,stroke:isLead?'#ffffff':'#e8f4ff','stroke-width':isLead?3:1});if($('names').checked)el('text',{x,y:y+4,fill:'white','font-size':11,'font-weight':'bold','text-anchor':'middle'},displayLabel(n,f,s));}}} $('tip').textContent=`Current chord: ${active()} · root ${chrom[root[active()]]} · chord tones ${chordNotes[active()].map(n=>chrom[n]).join(' – ')}.`;}
-// Eight eighth-note positions for each chord, strings indexed high E=0 to low E=5.
-// Chord roots C and D are highlighted as target notes even when outside the five-note collection.
-const leadPatterns={
- G:[[1,8],[1,10],[0,7],[0,10],[1,8],[2,9],[2,7],[1,8]],
- D:[[2,7],[2,9],[1,7],[1,10],[0,10],[1,10],[2,9],[2,7]],
- Em:[[1,5],[1,8],[0,7],[0,10],[1,8],[2,9],[2,7],[1,5]],
- C:[[2,5],[2,7],[2,9],[1,8],[1,10],[1,8],[2,7],[2,5]],
- Am:[[2,9],[2,7],[1,10],[1,8],[1,10],[0,7],[0,10],[1,10]],
- Bm:[[1,12],[1,10],[0,10],[0,12],[1,12],[2,11],[2,9],[1,12]]
-};
-// Correct the pattern's first note to its actual root, where feasible.
-leadPatterns.G[0]=[1,8]; // G on B string fret 8
-leadPatterns.D[0]=[2,7]; // D on G string fret 7
-leadPatterns.Em[0]=[1,5]; // E on B string fret 5
-leadPatterns.C[0]=[2,5]; // C on G string fret 5
-leadPatterns.Am[0]=[2,9]; // E minor pentatonic A on G string fret 2? fret 9 is E; use A at D string fret 7
-leadPatterns.Am[0]=[3,7];
-leadPatterns.Bm[0]=[1,12]; // B on B string fret 12
-function noteLabel(pos){return chrom[(tuning[pos[0]]+pos[1])%12]}
-function showLead(c,index){let pos=leadPatterns[c][index%8];if(!filterAllows((tuning[pos[0]]+pos[1])%12,c))return;leadPosition={s:pos[0],f:pos[1]};$('leadReadout').textContent=`${c} chord · note ${index%8+1}/8: ${noteLabel(pos)} — ${['high e','B','G','D','A','low E'][pos[0]]} string, fret ${pos[1]}`;drawLeadSteps(index%8);neck()}
-function drawLeadSteps(index=-1){let c=active();$('leadSteps').innerHTML=leadPatterns[c].map((p,i)=>`<span class="${i===index?'now':''}">${i+1}. ${noteLabel(p)} · ${['e','B','G','D','A','E'][p[0]]}${p[1]}</span>`).join('')}
-function leadTone(pos,at,dur){let midi=[64,59,55,50,45,40][pos[0]]+pos[1];let hz=440*Math.pow(2,(midi-69)/12);pluck(hz,at,dur,.19)}
-function leadBeat(c,b,at,sec){if(!guided)return;for(let j=0;j<2;j++){let i=b*2+j,t=at+j*sec/2,p=leadPatterns[c][i];if(filterAllows((tuning[p[0]]+p[1])%12,c)&&$('leadSound').checked)leadTone(p,t,sec*.43);let delay=Math.max(0,(t-ctx.currentTime)*1000);leadTimers.push(setTimeout(()=>{if(guided&&filterAllows((tuning[p[0]]+p[1])%12,c))showLead(c,i)},delay))}}
-// Web Audio synthesis: softly filtered plucked strings with gentle bass and optional click.
-const hz=midi=>440*Math.pow(2,(midi-69)/12);
-function chordVoicing(c){let p=chordParts(c),r=48+p.pc;return [r,r+(p.minor?3:4),r+7,r+12].map(hz)}
-function chordBass(c){return hz(36+chordParts(c).pc)}
-const mix=id=>(+$(''+id+'Volume').value)/100;
-let noiseBuffer=null;
-function noise(){if(noiseBuffer&&noiseBuffer.sampleRate===ctx.sampleRate)return noiseBuffer;
-noiseBuffer=ctx.createBuffer(1,ctx.sampleRate*2,ctx.sampleRate);
-const a=noiseBuffer.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1;return noiseBuffer;}
-function envelope(at,peak,attack,decay,dest){let g=ctx.createGain();g.gain.setValueAtTime(.0001,at);g.gain.linearRampToValueAtTime(Math.max(.0002,peak),at+attack);g.gain.exponentialRampToValueAtTime(.0001,at+decay);g.connect(dest);return g;}
-function pluck(freq,at,duration=.9,volume=.13){if(!ctx||!master)return;
-let o=ctx.createOscillator(),g=envelope(at,volume,.012,Math.max(.09,duration),master),f=ctx.createBiquadFilter();
-o.type='triangle';o.frequency.setValueAtTime(freq,at);f.type='lowpass';f.frequency.value=1900;
-o.connect(f).connect(g);o.start(at);o.stop(at+Math.max(.1,duration)+.025);}
-function tick(at){if(!ctx||!master)return;let o=ctx.createOscillator(),g=envelope(at,.065,.003,.05,master);o.type='sine';o.frequency.value=880;o.connect(g);o.start(at);o.stop(at+.06)}
-// Lightweight plucked-string model: noisy string excitation, multiple decaying partials,
-// short pick transient and small per-string timing variation. No external assets required.
-function guitarString(freq,at,velocity=.6,short=false){
-let tone=$('guitarTone').value,dur=short?.20:(tone==='acoustic'?1.55:1.1);
-let out=envelope(at,velocity*.13*mix('guitar'),.004,dur,master);
-let filter=ctx.createBiquadFilter();filter.type='lowpass';filter.frequency.value=tone==='acoustic'?3400:tone==='clean'?4100:2400;filter.Q.value=.7;
-filter.connect(out);
-let harmonics=tone==='acoustic'?[1,.42,.17,.06]:tone==='clean'?[1,.38,.21,.1]:tone==='crunch'?[1,.65,.35,.23]:[1,.8,.55,.38];
-harmonics.forEach((amp,i)=>{let o=ctx.createOscillator();o.type=i%2?'triangle':'sawtooth';o.frequency.setValueAtTime(freq*(i+1),at);let g=ctx.createGain();g.gain.value=amp*.18;o.connect(g).connect(filter);o.start(at);o.stop(at+dur+.02)});
-let pick=ctx.createBufferSource();pick.buffer=noise();let pf=ctx.createBiquadFilter();pf.type='highpass';pf.frequency.value=tone==='acoustic'?2600:1400;let pg=envelope(at,velocity*.022*mix('guitar'),.002,.026,master);pick.connect(pf).connect(pg);pick.start(at);pick.stop(at+.03);
-}
-function guitarStroke(c,at,velocity=.7,up=false,muted=false,power=false){
-let p=chordParts(c),base=48+p.pc,notes=power?[base,base+7,base+12]:[base,base+(p.minor?3:4),base+7,base+12,base+16];
-if(up)notes.reverse();let span=up?.042:.066;
-notes.forEach((m,i)=>guitarString(hz(m),at+i*span/Math.max(1,notes.length-1),velocity*(.86+Math.random()*.2),muted));}
-function bassStroke(c,at,duration=.8,accent=1){pluck(chordBass(c),at,duration,.22*mix('bass')*accent)}
-function drumHit(type,at,velocity=1){
-if(!ctx||!master||$('drumGroove').value==='off')return;
-if(type==='kick'&&!$('kickOn').checked||type==='snare'&&!$('snareOn').checked||type==='hat'&&!$('hatOn').checked||type==='crash'&&!$('crashOn').checked)return;
-let vol=mix('drum')*velocity;
-if(type==='kick'){let o=ctx.createOscillator(),g=envelope(at,.8*vol,.003,.29,master);o.type='sine';o.frequency.setValueAtTime(145,at);o.frequency.exponentialRampToValueAtTime(48,at+.13);o.connect(g);o.start(at);o.stop(at+.31);return}
-let src=ctx.createBufferSource();src.buffer=noise();let filter=ctx.createBiquadFilter();filter.type=type==='snare'?'bandpass':'highpass';filter.frequency.value=type==='snare'?1750:type==='crash'?4800:7200;filter.Q.value=type==='snare'?.65:.4;
-let dur=type==='snare'?.19:type==='crash'?1.1:.07;
-let gain=envelope(at,(type==='snare'?.31:type==='crash'?.23:.12)*vol,.003,dur,master);
-src.connect(filter).connect(gain);src.start(at);src.stop(at+dur+.02);
-if(type==='snare'){let o=ctx.createOscillator(),g=envelope(at,.09*vol,.003,.11,master);o.type='triangle';o.frequency.value=180;o.connect(g);o.start(at);o.stop(at+.12)}
-}
-const strums={
-rock:[[0,.82],[2,.48,1],[4,.8],[6,.52,1],[8,.85],[10,.45,1],[12,.72],[14,.55,1]],
-arena:[[0,1],[3,.45,1],[4,.8],[7,.5,1],[8,1],[11,.45,1],[12,.85],[14,.65,1]],
-acoustic:[[0,.8],[2,.48,1],[4,.68],[6,.52,1],[8,.8],[10,.5,1],[11,.42,1],[14,.6,1]],
-ballad:[[0,.72],[4,.4,1],[8,.65],[12,.45,1]],
-country:[[0,.78],[3,.42,1],[6,.65],[9,.4,1],[12,.7],[15,.45,1]],
-pop:[[0,.8],[2,.4,1],[3,.38,1],[6,.5,1],[8,.85],[10,.42,1],[11,.4,1],[14,.55,1],[15,.38,1]],
-reggae:[[2,.72,1,1],[6,.72,1,1],[10,.72,1,1],[14,.72,1,1]],
-blues:[[0,.82],[3,.42,1],[6,.75],[9,.45,1],[12,.76],[15,.48,1]],
-power:[[0,.9,0,0,1],[2,.44,0,1,1],[4,.72,0,0,1],[6,.46,0,1,1],[8,.9,0,0,1],[10,.46,0,1,1],[12,.8,0,0,1],[14,.52,0,1,1]],
-arpeggio:[[0,.68],[4,.5],[8,.65],[12,.48]],
-pulse:[[0,.58],[4,.48],[8,.58],[12,.48]]
-};
-const drumGrooves={
-rock:{kick:[0,8],snare:[4,12],hat:[0,2,4,6,8,10,12,14]},
-arena:{kick:[0,6,8,14],snare:[4,12],hat:[0,2,4,6,8,10,12,14]},
-ballad:{kick:[0,8],snare:[4,12],hat:[0,4,8,12]},
-shuffle:{kick:[0,6,8,14],snare:[4,12],hat:[0,3,6,9,12,15]},
-country:{kick:[0,8],snare:[4,12],hat:[0,3,6,9,12,15]},
-pop:{kick:[0,3,8,11],snare:[4,12],hat:[0,2,4,6,8,10,12,14]}
-};
-function schedule(b,at){
-let c=selectedChord||progression()[Math.floor(b/4)%progression().length],within=b%4,sec=60/(+$('tempo').value);
-let barNumber=Math.floor(b/4),style=$('style').value,strokes=strums[style]||strums.rock;
-if(within===0||within===2)bassStroke(c,at,sec*1.25,within===0?1:.72);
-if(style==='arpeggio'){
-let notes=chordVoicing(c);for(let i=0;i<4;i++)guitarString(notes[(within+i)%notes.length],at+i*sec/4,.46);
-}else strokes.filter(x=>Math.floor(x[0]/4)===within).forEach(x=>guitarStroke(c,at+(x[0]%4)*sec/4,x[1],!!x[2],!!x[3],!!x[4]));
-let groove=drumGrooves[$('drumGroove').value];
-if(groove){for(let [name,steps] of Object.entries(groove))for(let step of steps)if(Math.floor(step/4)===within)drumHit(name,at+(step%4)*sec/4,step===0?1:.83);
-if(within===0&&barNumber%4===0)drumHit('crash',at,.8);
-if($('fillsOn').checked&&barNumber%4===3&&within===3){drumHit('snare',at+sec*.5,.55);drumHit('snare',at+sec*.75,.75);}}
-if(guided)leadBeat(c,within,at,sec);if($('click').checked)tick(at)
-}
-function advance(){beat++;if(beat>=4){beat=0;bar=(bar+1)%progression().length}nextTime+=60/(+$('tempo').value)}function scheduler(){if(!playing)return;while(nextTime<ctx.currentTime+.12){schedule(bar*4+beat,nextTime);advance();}drawChords();neck()}$('play').onclick=async()=>{if(playing)return;ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();await ctx.resume();master=ctx.createGain();master.gain.value=.65;master.connect(ctx.destination);playing=true;beat=0;bar=0;nextTime=ctx.currentTime+($('countIn').checked?4*60/(+$('tempo').value):.06);if($('countIn').checked){for(let i=0;i<4;i++)tick(ctx.currentTime+.04+i*60/(+$('tempo').value));}scheduler();timer=setInterval(scheduler,45);$('play').disabled=true};$('stop').onclick=()=>{playing=false;guided=false;leadTimers.forEach(clearTimeout);leadTimers=[];clearInterval(timer);if(master){master.gain.setTargetAtTime(.0001,ctx.currentTime,.035);master=null}$('play').disabled=false;beat=0;bar=0;drawChords();neck()};$('tempo').oninput=()=>{$('bpm').textContent=$('tempo').value+' BPM'};$('progression').onchange=()=>{bar=0;beat=0;selectedChord=null;drawChords();neck()};$('resume').onclick=()=>{selectedChord=null;manualIndex=0;drawChords();neck()};$('bm').onclick=()=>selectChord('Bm');$('demo').onclick=async()=>{guided=true;$('demo').textContent='✓ Guided melody on';if(!playing)await $('play').onclick();else {leadTimers.forEach(clearTimeout);leadTimers=[];}};
-$('pauseDemo').onclick=()=>{guided=false;leadTimers.forEach(clearTimeout);leadTimers=[];leadPosition=null;$('demo').textContent='▶ Start guided melody';$('leadReadout').textContent='Melody stopped. Backing track may continue.';neck();drawLeadSteps()};
-$('nextNote').onclick=()=>{let c=active();showLead(c,manualIndex++%8);if($('leadSound').checked&&filterAllows((tuning[leadPatterns[c][(manualIndex-1)%8][0]]+leadPatterns[c][(manualIndex-1)%8][1])%12,c)){let Audio=window.AudioContext||window.webkitAudioContext;ctx=ctx||new Audio();ctx.resume().then(()=>{if(!master||!playing){master=ctx.createGain();master.gain.value=.65;master.connect(ctx.destination)}leadTone(leadPatterns[c][(manualIndex-1)%8],ctx.currentTime+.02,.4)})}};
-for(let id of ['range','names'])$(id).onchange=neck;$('highlight').onchange=()=>applyFilter($('highlight').value==='pent'?'pent':$('highlight').value==='tones'?'all':$('highlight').value==='roots'?'roots':'roots');// Delayed until all modules are initialized.
+let selectedBox = 0;
+const chrom = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const tuning = [4,11,7,2,9,4];
+let pent = [4,7,9,11,2];
+const chordNotes = {}, root = {};
+const mod = n => (n % 12 + 12) % 12;
+let keyShift = 0;
+const $ = id => document.getElementById(id);
+const progression = () => $('progression').value.split(',');
 
-// v5: dedicated chord-scale learning and alternative guided melodies.
-const melodyOriginal=JSON.parse(JSON.stringify(leadPatterns));
-const melodyVariants={
- melodic:melodyOriginal,
- climb:{G:[[2,7],[2,9],[1,8],[1,10],[0,7],[0,10],[1,8],[2,7]],D:[[2,7],[2,9],[1,7],[1,10],[0,10],[1,10],[2,9],[2,7]],Em:[[1,5],[1,8],[0,7],[0,10],[0,12],[0,10],[1,8],[1,5]],C:[[2,5],[2,7],[2,9],[1,8],[1,10],[1,8],[2,7],[2,5]],Bm:[[2,4],[2,7],[1,7],[1,10],[0,7],[0,10],[1,7],[2,4]]},
- blues:{G:[[1,8],[1,8],[2,7],[2,9],[1,8],[0,10],[0,7],[1,8]],D:[[2,7],[2,7],[1,10],[1,7],[2,9],[0,10],[1,10],[2,7]],Em:[[1,5],[1,5],[2,7],[2,9],[1,8],[0,7],[1,8],[1,5]],C:[[2,5],[2,5],[2,7],[1,8],[1,10],[2,9],[2,7],[2,5]],Bm:[[2,4],[2,4],[2,7],[1,7],[1,10],[0,7],[1,7],[2,4]]},
- wide:{G:[[5,3],[4,2],[3,5],[2,4],[1,8],[0,7],[0,10],[1,8]],D:[[5,10],[4,12],[3,12],[2,7],[1,10],[0,10],[1,7],[2,7]],Em:[[5,0],[5,3],[4,2],[3,2],[2,9],[1,8],[0,12],[0,7]],C:[[4,3],[3,2],[2,5],[2,9],[1,8],[0,8],[1,8],[2,5]],Bm:[[4,2],[3,4],[2,4],[2,7],[1,7],[0,7],[1,10],[2,4]]}
-};
-function transposeLeadPos(pos){let s=pos[0],f=pos[1]+keyShift;while(f>+$('range').value)f-=12;while(f<0)f+=12;return [s,f];}
-function refreshMelody(){let variant=melodyVariants[$('melodyStyle').value];for(const c of progression()){let src=sourceName(c),pattern=variant[src]||variant.G;leadPatterns[c]=pattern.map(transposeLeadPos);}manualIndex=0;leadPosition=null;}
-$('melodyStyle').onchange=()=>{refreshMelody();drawLeadSteps();neck()};
-let labChord='G',labSequence=[],labIndex=0,labTimer=null,labRunning=false;
-function labChordButtons(){let list=[...new Set([...progression(),'Bm'])];$('labChords').innerHTML=list.map(c=>`<button class="practiceBtn ${labChord===c?'active':''}" data-lab="${c}">${c}</button>`).join('');document.querySelectorAll('[data-lab]').forEach(b=>b.onclick=()=>{labChord=b.dataset.lab;selectChord(labChord);labIndex=0;labSequence=[];labChordButtons();labPaint();$('labReadout').textContent=`${labChord}: ${chordNotes[labChord].map(n=>chrom[n]).join(' · ')}. Ready to climb.`})}
-function filterAllows(n,c=active()){if(noteFilter==='pent')return pent.includes(n);if(noteFilter==='roots')return n===root[c];if(noteFilter==='extras')return chordNotes[c].includes(n)&&n!==root[c];return pent.includes(n)||chordNotes[c].includes(n)}
-function labAllowed(){return Array.from({length:12},(_,n)=>n).filter(n=>filterAllows(n,labChord))}
-function applyFilter(v){noteFilter=v;leadPosition=null;labSequence=[];labIndex=0;labStop();guided=false;leadTimers.forEach(clearTimeout);leadTimers=[];document.querySelectorAll('[data-filter]').forEach(b=>{let on=b.dataset.filter===v;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on))});const descriptions={pent:'Pentatonic only: '+pent.map(n=>chrom[n]).join(' · ')+'. All scale and guided lead notes are limited to these five notes.',roots:'Chord roots only: the selected chord root, on every string and fret.',extras:'Other chord tones only: thirds and fifths of the selected chord, excluding its root.',all:'All notes: pentatonic notes (blue), selected chord root (green), and other chord tones (amber).'};$('filterHelp').textContent=descriptions[v];$('highlight').value=v==='pent'?'pent':v==='roots'?'roots':v==='extras'?'tones':'tones';$('labNotes').value=v==='pent'?'pent':v==='roots'?'arpeggio':'tones';labPaint();$('leadReadout').textContent='Filter changed. Press Start guided melody or Next note.'}
-document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>applyFilter(b.dataset.filter));
-function labBuild(){let allowed=labAllowed(),a=[];boxPositions().forEach((frets,s)=>frets.forEach((f,i)=>{let n=(tuning[s]+f)%12;if(allowed.includes(n))a.push({s,f,n,midi:[64,59,55,50,45,40][s]+f,finger:boxFinger(selectedBox,s,i)})}));a.sort((x,y)=>x.midi-y.midi||y.s-x.s);let dir=$('labDirection').value;return dir==='down'?a.reverse():dir==='up'?a:a.concat(a.slice(0,-1).reverse())}
-function labPaint(){if(!labChord)return;let allowed=labAllowed(),pos=boxPositions(),maxF=Math.max(...pos.flat());neck();let svg=$('neck'),ns='http://www.w3.org/2000/svg';if($('handCoach').checked){drawHandZone(svg,ns,pos)}if($('boxOnly').checked){svg.querySelectorAll('circle').forEach(c=>c.setAttribute('opacity','.06'));svg.querySelectorAll('text').forEach(t=>{if(t.getAttribute('font-weight')==='bold')t.setAttribute('opacity','.06')})}for(let s=0;s<6;s++)for(let i=0;i<pos[s].length;i++){let f=pos[s][i],n=(tuning[s]+f)%12;if(!allowed.includes(n)||f>+$('range').value||f<0)continue;let color=noteFilter==='pent'?'#347cdb':n===root[labChord]?'#15a56e':noteFilter==='extras'?'#d99a31':chordNotes[labChord].includes(n)?'#d99a31':'#347cdb';let x=f?54+(f-.5)*46:38,y=39+s*29;let c=document.createElementNS(ns,'circle');for(let [k,v] of Object.entries({cx:x,cy:y,r:13.5,fill:color,stroke:'#ffffff','stroke-width':1.4}))c.setAttribute(k,v);svg.append(c);if($('names').checked){let t=document.createElementNS(ns,'text');for(let [k,v] of Object.entries({x,y:y+4,fill:'white','font-size':11,'font-weight':'bold','text-anchor':'middle'}))t.setAttribute(k,v);t.textContent=displayLabel(n,f,s);svg.append(t)}}let p=labSequence[Math.max(0,labIndex-1)];if(p){let x=p.f?54+(p.f-.5)*46:38,y=39+p.s*29;let c=document.createElementNS(ns,'circle');for(let [k,v] of Object.entries({cx:x,cy:y,r:18,fill:'#fbbf24',stroke:'white','stroke-width':3}))c.setAttribute(k,v);svg.append(c);let t=document.createElementNS(ns,'text');for(let [k,v] of Object.entries({x,y:y+4,fill:'#111827','font-size':12,'font-weight':'bold','text-anchor':'middle'}))t.setAttribute(k,v);t.textContent=displayLabel(p.n,p.f,p.s);svg.append(t)}}
-function handBase(pos){let low=Math.min(...pos.flat().filter(f=>f>0));return selectedBox===2?Math.max(1,low+1):Math.max(1,low)}
-function drawHandZone(svg,ns,pos){let base=handBase(pos),end=base+3,max=+$('range').value;if(base>max)return;let r=document.createElementNS(ns,'rect');for(const [k,v] of Object.entries({x:54+(base-1)*46+3,y:27,width:Math.min(4,max-base+1)*46-6,height:172,rx:9,fill:'#16a34a','fill-opacity':'.12',stroke:'#86efac','stroke-opacity':'.55','stroke-width':1.5,'stroke-dasharray':'5 4'}))r.setAttribute(k,v);svg.append(r);if(selectedBox===2){let f=boxPositions()[2][0];if(f<=max){let cue=document.createElementNS(ns,'rect');for(const [k,v] of Object.entries({x:54+(f-1)*46+4,y:97,width:38,height:30,rx:8,fill:'none',stroke:'#fb923c','stroke-width':2.5,'stroke-dasharray':'3 3'}))cue.setAttribute(k,v);svg.append(cue)}}}
-function coachInstruction(p,previous){let base=handBase(boxPositions()),f=p.f,name=chrom[p.n],finger=p.finger;let shift=f<base?`Move your hand back one fret for ${name} at fret ${f}; use finger ${finger}. Return to the home position comfortably.`:f>base+3?`Shift forward to reach ${name} at fret ${f}; don't force a stretch.`:`Stay relaxed in your ${base}–${base+3} home position. Finger ${finger} plays ${name} at fret ${f}.`;if($('handMode').value==='fluid'&&previous&&Math.abs(previous.f-f)>=3)shift=`Position change: release pressure, slide/shift smoothly from fret ${previous.f} toward fret ${f}. `+shift;return shift}
-async function labAdvance(){if(!labSequence.length||labIndex>=labSequence.length){labSequence=labBuild();labIndex=0}let previous=labIndex?labSequence[labIndex-1]:null;let p=labSequence[labIndex++];if(!p)return;labPaint();$('handInstruction').textContent=$('handCoach').checked?coachInstruction(p,previous):'Hand Position Coach is off.';$('labReadout').textContent=`${labChord} · ${chrom[p.n]} · ${['high E','B','G','D','A','low E'][p.s]} string · fret ${p.f} · finger ${p.finger} · ${labIndex}/${labSequence.length}`;if($('labAudio').checked){ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();await ctx.resume();if(!master){master=ctx.createGain();master.gain.value=.65;master.connect(ctx.destination)}leadTone([p.s,p.f],ctx.currentTime+.02,.45)}}
-function labStop(){labRunning=false;clearInterval(labTimer);labTimer=null;$('labPlay').textContent='▶ Play scale'}
-$('labPlay').onclick=()=>{if(labRunning){labStop();return}labRunning=true;$('labPlay').textContent='❚❚ Pause scale';labAdvance();labTimer=setInterval(()=>{if(labRunning)labAdvance()},Math.max(180,60000/(+$('handTempo').value)))};
-$('labStop').onclick=labStop;$('labNext').onclick=()=>{labStop();labAdvance()};
-for(let id of ['labDirection'])$(id).onchange=()=>{labSequence=[];labIndex=0;labPaint()};$('labNotes').onchange=()=>applyFilter($('labNotes').value==='pent'?'pent':$('labNotes').value==='arpeggio'?'roots':'all');
-const previousProgressionChange=$('progression').onchange;$('progression').onchange=()=>{labStop();refreshHarmony();labChord=progression()[0];labSequence=[];labIndex=0;previousProgressionChange();showBoxes();labChordButtons();labPaint()};
-const previousRangeChange=$('range').onchange;$('range').onchange=()=>{if($('range').value==='12'&&selectedBox===0)$('boxOctave').value='0';previousRangeChange();labSequence=[];labIndex=0;labPaint()};
-// Authentic connected two-notes-per-string E minor pentatonic positions (high E to low E).
-// Box numbering follows the E minor root position at fret 12, then moves up the neck.
+let noteFilter = 'pent';
+let selectedChord = null;
+let guided = false, leadPosition = null, manualIndex = 0, leadTimers = [];
+let ctx = null, playing = false, beat = 0, bar = 0, nextTime = 0, timer = null, master = null;
+let countUntil = 0, countStep = 0, armed = false, soundingAt = 0, soundingIndex = 0;
+let lastChord = null, guitarBus = null, ampInput = null, ampTone = null;
+let labChord = 'G', labSequence = [], labIndex = 0, labTimer = null, labRunning = false;
+let lastPainted = '';
 
-function boxPositions(){let shape=boxShapes[selectedBox].map(a=>a.map(f=>f+keyShift));if(selectedBox===0&&$('boxOctave').value==='12')return shape;let min=Math.min(...shape.flat()),max=Math.max(...shape.flat());while(min>=12){shape=shape.map(a=>a.map(f=>f-12));min-=12;max-=12;}while(min<0){shape=shape.map(a=>a.map(f=>f+12));min+=12;max+=12;}if($('range').value==='24'&&selectedBox!==0){shape=shape.map(a=>a.map(f=>f+12));}return shape}
-function boxFinger(b,s,i){let p=boxPositions()[s],f=p[i];if(f===0)return 0;let d=p[1]-p[0];if(d===2)return i===0?1:3;if(d===3)return i===0?1:4;return i===0?1:3}
-function showBoxes(){let labels=['Box 1 · relative minor root','Box 2 · major root area','Box 3 · second scale degree area','Box 4 · third scale degree area','Box 5 · fifth scale degree area'];$('boxButtons').innerHTML=labels.map((x,i)=>`<button class="boxBtn ${selectedBox===i?'active':''}" data-box="${i}" aria-pressed="${selectedBox===i}">${x}</button>`).join('');document.querySelectorAll('[data-box]').forEach(b=>b.onclick=()=>{selectedBox=Number(b.dataset.box);labStop();labSequence=[];labIndex=0;showBoxes();labPaint()});let p=boxPositions();let low=Math.min(...p.flat()),high=Math.max(...p.flat());$('boxGuide').textContent=`Box ${selectedBox+1}: frets ${low}–${high} · two notes per string · 1=index, 3=ring, 4=pinky. Play low E → high E → low E. ${selectedBox===2?'The G-string low note falls one fret behind the typical hand area; move your index comfortably.':''}`;}
-$('boxOctave').onchange=()=>{if($('boxOctave').value==='12')$('range').value='24';labStop();labSequence=[];labIndex=0;showBoxes();labPaint()};$('boxOnly').onchange=labPaint;for(const id of ['handCoach','handMode'])$(id).onchange=()=>{labStop();labSequence=[];labIndex=0;labPaint();$('handInstruction').textContent=id==='handMode'&&$('handMode').value==='fluid'?'Fluid mode: practice smooth shifts between notes; keep fingers relaxed.':'Choose Next note to see the recommended movement.'};$('handTempo').oninput=()=>{$('handBpm').textContent=$('handTempo').value+' BPM';if(labRunning){labStop();$('labPlay').click()}};
-$('fingerDisplay').onchange=()=>labPaint();refreshHarmony();showBoxes();labChordButtons();applyFilter('pent');
-</script></body></html>
+function chordParts(c) {
+  const m = /^([A-G](?:#|b)?)(m?)$/.exec(c);
+  if (!m) throw Error('Unsupported chord ' + c);
+  const aliases = {Db:'C#', Eb:'D#', Gb:'F#', Ab:'G#', Bb:'A#'};
+  return {pc: chrom.indexOf(aliases[m[1]] || m[1]), minor: m[2] === 'm'};
+}
+function chordName(pc, minor) { return chrom[mod(pc)] + (minor ? 'm' : ''); }
+function sourceName(c) { const p = chordParts(c); return chordName(p.pc - keyShift, p.minor); }
+function mediantChord() { return chordName(mod(7 + keyShift + 4), true); }
+function countBeat() {
+  if (!playing || !ctx || !countUntil || ctx.currentTime >= countUntil) return 0;
+  const elapsed = countStep * 4 - (countUntil - ctx.currentTime);
+  return Math.min(4, Math.max(1, Math.floor(elapsed / countStep) + 1));
+}
+function active() {
+  if (selectedChord) return selectedChord;
+  if (playing && armed && !countBeat()) {
+    const index = ctx.currentTime + 0.02 >= soundingAt ? soundingIndex : Math.max(0, soundingIndex - 1);
+    return progression()[Math.floor(index / 4) % progression().length];
+  }
+  return progression()[bar % progression().length];
+}
+function viewState() {
+  const len = progression().length;
+  const counting = countBeat();
+  const fallback = selectedChord || progression()[0];
+  if (!playing) return {counting: 0, beat: -1, bar: 0, chord: fallback};
+  if (counting || !armed) return {counting, beat: -1, bar: 0, chord: fallback};
+  const index = ctx.currentTime + 0.02 >= soundingAt ? soundingIndex : Math.max(0, soundingIndex - 1);
+  const b = index % 4;
+  const r = Math.floor(index / 4) % len;
+  return {counting: 0, beat: b, bar: r, chord: selectedChord || progression()[r]};
+}
+function setText(id, text) {
+  const el = $(id);
+  if (el && el.textContent !== text) el.textContent = text;
+}
+function toneLabel() {
+  const opt = $('guitarTone').selectedOptions[0];
+  return opt ? opt.textContent : '';
+}
+function styleLabel() {
+  const opt = $('style').selectedOptions[0];
+  return opt ? opt.textContent : '';
+}
+
+function updateCopy() {
+  const tonic = chrom[mod(7 + keyShift)];
+  const relative = chrom[mod(4 + keyShift)];
+  setText('keyReadout', tonic + ' major / ' + relative + ' minor');
+  setText('leadBlurb', 'A suggested eight-note melody for each chord. The gold dot moves with the note. Watch it, then play it. The scale is ' + tonic + ' major / ' + relative + ' minor pentatonic. Roots outside the scale are landing notes.');
+  const outside = [...new Set(progression().flatMap(c => chordNotes[c] || []))].filter(n => !pent.includes(n)).map(n => chrom[n]);
+  setText('challengeText', 'On each chord change, land on the green root. Fill the rest with blue pentatonic notes. Amber dots are the other chord tones.' + (outside.length ? ' ' + outside.join(' and ') + ' sit outside this pentatonic on purpose — they belong to the chord, not the scale.' : ''));
+  const iii = mediantChord();
+  $('bm').textContent = 'Practice iii · ' + iii;
+  $('bm').title = 'Lock the iii chord (' + iii + ') so you can land on its root. Resume the loop when you want the changes back.';
+}
+
+function refreshHarmony() {
+  const opt = $('progression').selectedOptions[0];
+  keyShift = mod(chrom.indexOf(opt.dataset.key) - 7);
+  pent.splice(0, pent.length, ...[4, 7, 9, 11, 2].map(n => mod(n + keyShift)));
+  for (const c of [...new Set([...progression(), mediantChord()])]) {
+    const p = chordParts(c);
+    root[c] = p.pc;
+    chordNotes[c] = [p.pc, mod(p.pc + (p.minor ? 3 : 4)), mod(p.pc + 7)];
+  }
+  updateCopy();
+  refreshMelody();
+  renderChords();
+}
+
+function renderChords() {
+  $('chords').innerHTML = progression().map((c, i) => `<button type="button" class="chord" data-chord="${c}" data-index="${i}"><span class="chordName">${c}</span><span class="chordMeta">Bar ${i + 1} · root ${chrom[root[c]] || ''}</span><span class="pips" aria-hidden="true"><i></i><i></i><i></i><i></i></span></button>`).join('');
+  $('chords').querySelectorAll('[data-chord]').forEach(b => b.onclick = () => selectChord(b.dataset.chord));
+}
+
+function paintTransport() {
+  const view = viewState();
+  const chord = view.chord;
+  const rootName = chrom[root[chord]] || '';
+  const tones = (chordNotes[chord] || []).map(n => chrom[n]).join(' · ');
+  const counting = view.counting;
+  $('nowChord').classList.toggle('count', !!counting);
+  if (counting) {
+    setText('nowKicker', 'Count-in');
+    setText('nowChord', String(counting));
+    setText('nowMeta', 'Starts on ' + progression()[0]);
+    setText('nowNext', 'Listen for beat ' + counting + ', then land on the green root.');
+    setText('status', 'Count-in ' + counting);
+  } else if (playing) {
+    setText('nowKicker', selectedChord ? 'Holding' : 'Now playing');
+    setText('nowChord', chord);
+    setText('nowMeta', 'Land on ' + rootName + (tones ? ' · tones ' + tones : ''));
+    setText('nowNext', selectedChord ? 'Holding this chord until you resume the loop.' : 'Next ' + progression()[(view.bar + 1) % progression().length]);
+    setText('status', chord + ' · beat ' + (view.beat + 1));
+  } else {
+    setText('nowKicker', 'Ready');
+    setText('nowChord', chord);
+    setText('nowMeta', 'Land on ' + rootName + (tones ? ' · tones ' + tones : ''));
+    setText('nowNext', 'Press play, then land on the green root at each change. Space also starts and stops.');
+    setText('status', 'Ready');
+  }
+  setText('nowFeel', $('tempo').value + ' BPM · ' + styleLabel() + ' · ' + toneLabel());
+  setText('selection', selectedChord
+    ? 'Locked on ' + selectedChord + '. Land on the green ' + rootName + '. Resume the loop when you want the changes back.'
+    : 'Following the loop. The lit chord is the one you hear.');
+  $('resume').disabled = !selectedChord;
+  $('bm').classList.toggle('active', selectedChord === mediantChord());
+  $('play').disabled = playing;
+  $('play').textContent = playing ? '▶ Playing' : '▶ Play backing track';
+  const beats = $('nowBeats').children;
+  for (let i = 0; i < beats.length; i++) beats[i].classList.toggle('on', counting ? i < counting : view.beat === i);
+  document.querySelectorAll('#chords [data-chord]').forEach(b => {
+    const on = playing && !counting && !selectedChord && Number(b.dataset.index) === view.bar;
+    const selected = selectedChord === b.dataset.chord;
+    b.classList.toggle('on', on);
+    b.classList.toggle('selected', selected);
+    b.setAttribute('aria-pressed', String(selected));
+    b.querySelectorAll('.pips i').forEach((dot, i) => dot.classList.toggle('on', on && view.beat === i));
+  });
+  if (root[chord] !== undefined) setText('tip', 'Current chord: ' + chord + ' · land on ' + rootName + ' · chord tones ' + tones + '.');
+  if (chord !== lastPainted && root[chord] !== undefined) {
+    if (lastPainted) leadPosition = null;
+    lastPainted = chord;
+    neck();
+    drawLeadSteps();
+  }
+}
+
+function selectChord(c) {
+  selectedChord = c;
+  labChord = c;
+  manualIndex = 0;
+  leadPosition = null;
+  labSequence = [];
+  labIndex = 0;
+  lastPainted = '';
+  labChordButtons();
+  paintTransport();
+  neck();
+  drawLeadSteps();
+}
+
+function fingerFor(f, s) {
+  if (f === 0) return '0';
+  if (typeof selectedBox !== 'undefined' && s !== undefined) {
+    const entry = boxPositions()[s] || [];
+    const ix = entry.indexOf(f);
+    if (ix >= 0) return String(boxFinger(selectedBox, s, ix));
+  }
+  return String(Math.min(4, Math.max(1, f % 4 || 4)));
+}
+function displayLabel(n, f, s) {
+  const v = $('fingerDisplay').value;
+  const finger = fingerFor(f, s);
+  return v === 'fingers' ? finger : v === 'both' ? chrom[n] + '/' + finger : chrom[n];
+}
+function dotColor(n, chord) {
+  if (!chord || root[chord] === undefined) return null;
+  if (noteFilter === 'pent') return n === root[chord] ? '#15a56e' : pent.includes(n) ? '#347cdb' : null;
+  if (noteFilter === 'roots') return n === root[chord] ? '#15a56e' : null;
+  if (noteFilter === 'extras') return chordNotes[chord].includes(n) && n !== root[chord] ? '#d99a31' : null;
+  if (noteFilter === 'arp') return n === root[chord] ? '#15a56e' : chordNotes[chord].includes(n) ? '#d99a31' : null;
+  let color = pent.includes(n) ? '#347cdb' : null;
+  if (chordNotes[chord].includes(n)) color = '#d99a31';
+  if (n === root[chord]) color = '#15a56e';
+  return color;
+}
+function neck() {
+  const chord = active();
+  const max = +$('range').value;
+  const w = 56 + max * 46, h = 228, ns = 'http://www.w3.org/2000/svg', svg = $('neck');
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  svg.style.minWidth = max === 24 ? '1200px' : '730px';
+  svg.innerHTML = '';
+  function el(tag, attrs, text) {
+    const x = document.createElementNS(ns, tag);
+    for (const k in attrs) x.setAttribute(k, attrs[k]);
+    if (text !== undefined) x.textContent = text;
+    svg.append(x);
+    return x;
+  }
+  el('rect', {x: 54, y: 26, width: max * 46, height: 174, fill: '#b58a56', rx: 4});
+  for (let f = 0; f <= max; f++) {
+    if (f) el('rect', {x: 54 + (f - 1) * 46, y: 26, width: 2.5, height: 174, fill: '#d8e0e7'});
+    el('text', {x: f ? 54 + (f - .5) * 46 : 31, y: 17, fill: 'white', 'font-size': 12, 'text-anchor': 'middle'}, f);
+    const inlays = [3, 5, 7, 9, 15, 17, 19, 21];
+    if (inlays.includes(f) && f <= max) el('circle', {cx: 54 + (f - .5) * 46, cy: 111, r: 4.2, fill: '#8d6844'});
+    if ((f === 12 || f === 24) && f <= max) {
+      el('circle', {cx: 54 + (f - .5) * 46, cy: 78, r: 4.2, fill: '#8d6844'});
+      el('circle', {cx: 54 + (f - .5) * 46, cy: 144, r: 4.2, fill: '#8d6844'});
+    }
+  }
+  for (let s = 0; s < 6; s++) {
+    const y = 39 + s * 29;
+    el('line', {x1: 54, y1: y, x2: 54 + max * 46, y2: y, stroke: '#edf1f5', 'stroke-width': 1 + s * .3});
+    el('text', {x: 10, y: y + 4, fill: 'white', 'font-size': 13}, ['e', 'B', 'G', 'D', 'A', 'E'][s]);
+    for (let f = 0; f <= max; f++) {
+      const n = (tuning[s] + f) % 12;
+      let color = dotColor(n, chord);
+      const isLead = leadPosition && leadPosition.s === s && leadPosition.f === f && filterAllows(n);
+      if (color || isLead) {
+        if (isLead) color = '#fbbf24';
+        const x = f ? 54 + (f - .5) * 46 : 38;
+        el('circle', {cx: x, cy: y, r: isLead ? 17 : 12.5, fill: color, stroke: isLead ? '#ffffff' : '#e8f4ff', 'stroke-width': isLead ? 3 : 1});
+        if ($('names').checked) el('text', {x, y: y + 4, fill: 'white', 'font-size': 11, 'font-weight': 'bold', 'text-anchor': 'middle'}, displayLabel(n, f, s));
+      }
+    }
+  }
+  applyPracticeOverlay(svg, ns);
+}
+
+function handBase(pos) {
+  const low = Math.min(...pos.flat().filter(f => f > 0));
+  return selectedBox === 2 ? Math.max(1, low + 1) : Math.max(1, low);
+}
+function drawHandZone(svg, ns, pos) {
+  const base = handBase(pos), max = +$('range').value;
+  if (base > max) return;
+  const r = document.createElementNS(ns, 'rect');
+  for (const [k, v] of Object.entries({x: 54 + (base - 1) * 46 + 3, y: 27, width: Math.min(4, max - base + 1) * 46 - 6, height: 172, rx: 9, fill: '#16a34a', 'fill-opacity': '.12', stroke: '#86efac', 'stroke-opacity': '.55', 'stroke-width': 1.5, 'stroke-dasharray': '5 4'})) r.setAttribute(k, v);
+  svg.append(r);
+  if (selectedBox === 2) {
+    const f = boxPositions()[2][0];
+    if (f <= max) {
+      const cue = document.createElementNS(ns, 'rect');
+      for (const [k, v] of Object.entries({x: 54 + (f - 1) * 46 + 4, y: 97, width: 38, height: 30, rx: 8, fill: 'none', stroke: '#fb923c', 'stroke-width': 2.5, 'stroke-dasharray': '3 3'})) cue.setAttribute(k, v);
+      svg.append(cue);
+    }
+  }
+}
+function applyPracticeOverlay(svg, ns) {
+  const pos = boxPositions();
+  if ($('handCoach').checked) drawHandZone(svg, ns, pos);
+  const allowed = labAllowed();
+  if ($('boxOnly').checked) {
+    svg.querySelectorAll('circle').forEach(c => { if (c.getAttribute('stroke-width') !== '3') c.setAttribute('opacity', '.08'); });
+    svg.querySelectorAll('text').forEach(t => { if (t.getAttribute('font-weight') === 'bold') t.setAttribute('opacity', '.08'); });
+    const chord = active();
+    for (let s = 0; s < 6; s++) for (let i = 0; i < pos[s].length; i++) {
+      const f = pos[s][i], n = (tuning[s] + f) % 12;
+      if (!allowed.includes(n) || f > +$('range').value || f < 0) continue;
+      const color = dotColor(n, chord) || '#347cdb';
+      const x = f ? 54 + (f - .5) * 46 : 38, y = 39 + s * 29;
+      const c = document.createElementNS(ns, 'circle');
+      for (const [k, v] of Object.entries({cx: x, cy: y, r: 13.5, fill: color, stroke: '#ffffff', 'stroke-width': 1.4})) c.setAttribute(k, v);
+      svg.append(c);
+      if ($('names').checked) {
+        const t = document.createElementNS(ns, 'text');
+        for (const [k, v] of Object.entries({x, y: y + 4, fill: 'white', 'font-size': 11, 'font-weight': 'bold', 'text-anchor': 'middle'})) t.setAttribute(k, v);
+        t.textContent = displayLabel(n, f, s);
+        svg.append(t);
+      }
+    }
+  }
+  const p = labSequence[Math.max(0, labIndex - 1)];
+  if (p && labIndex > 0) {
+    const x = p.f ? 54 + (p.f - .5) * 46 : 38, y = 39 + p.s * 29;
+    const c = document.createElementNS(ns, 'circle');
+    for (const [k, v] of Object.entries({cx: x, cy: y, r: 18, fill: '#fbbf24', stroke: 'white', 'stroke-width': 3})) c.setAttribute(k, v);
+    svg.append(c);
+    const t = document.createElementNS(ns, 'text');
+    for (const [k, v] of Object.entries({x, y: y + 4, fill: '#111827', 'font-size': 12, 'font-weight': 'bold', 'text-anchor': 'middle'})) t.setAttribute(k, v);
+    t.textContent = displayLabel(p.n, p.f, p.s);
+    svg.append(t);
+  }
+}
+const leadPatterns = {
+  G: [[1,8],[1,10],[0,7],[0,10],[1,8],[2,9],[2,7],[1,8]],
+  D: [[2,7],[2,9],[1,7],[1,10],[0,10],[1,10],[2,9],[2,7]],
+  Em: [[1,5],[1,8],[0,7],[0,10],[1,8],[2,9],[2,7],[1,5]],
+  C: [[2,5],[2,7],[2,9],[1,8],[1,10],[1,8],[2,7],[2,5]],
+  Am: [[3,7],[2,7],[1,10],[1,8],[1,10],[0,7],[0,10],[1,10]],
+  Bm: [[1,12],[1,10],[0,10],[0,12],[1,12],[2,11],[2,9],[1,12]]
+};
+const melodyOriginal = JSON.parse(JSON.stringify(leadPatterns));
+const melodyVariants = {
+  melodic: melodyOriginal,
+  climb: {G:[[2,7],[2,9],[1,8],[1,10],[0,7],[0,10],[1,8],[2,7]], D:[[2,7],[2,9],[1,7],[1,10],[0,10],[1,10],[2,9],[2,7]], Em:[[1,5],[1,8],[0,7],[0,10],[0,12],[0,10],[1,8],[1,5]], C:[[2,5],[2,7],[2,9],[1,8],[1,10],[1,8],[2,7],[2,5]], Bm:[[2,4],[2,7],[1,7],[1,10],[0,7],[0,10],[1,7],[2,4]]},
+  blues: {G:[[1,8],[1,8],[2,7],[2,9],[1,8],[0,10],[0,7],[1,8]], D:[[2,7],[2,7],[1,10],[1,7],[2,9],[0,10],[1,10],[2,7]], Em:[[1,5],[1,5],[2,7],[2,9],[1,8],[0,7],[1,8],[1,5]], C:[[2,5],[2,5],[2,7],[1,8],[1,10],[2,9],[2,7],[2,5]], Bm:[[2,4],[2,4],[2,7],[1,7],[1,10],[0,7],[1,7],[2,4]]},
+  wide: {G:[[5,3],[4,2],[3,5],[2,4],[1,8],[0,7],[0,10],[1,8]], D:[[5,10],[4,12],[3,12],[2,7],[1,10],[0,10],[1,7],[2,7]], Em:[[5,0],[5,3],[4,2],[3,2],[2,9],[1,8],[0,12],[0,7]], C:[[4,3],[3,2],[2,5],[2,9],[1,8],[0,8],[1,8],[2,5]], Bm:[[4,2],[3,4],[2,4],[2,7],[1,7],[0,7],[1,10],[2,4]]}
+};
+function transposeLeadPos(pos) {
+  let s = pos[0], f = pos[1] + keyShift;
+  while (f > +$('range').value) f -= 12;
+  while (f < 0) f += 12;
+  return [s, f];
+}
+function patternFor(chord) {
+  const variant = melodyVariants[$('melodyStyle').value] || melodyVariants.melodic;
+  const src = sourceName(chord);
+  const pattern = variant[src] || melodyVariants.melodic[src] || variant.G || melodyVariants.melodic.G;
+  return pattern.map(transposeLeadPos);
+}
+function refreshMelody() {
+  for (const c of [...new Set([...progression(), mediantChord()])]) leadPatterns[c] = patternFor(c);
+  manualIndex = 0;
+  leadPosition = null;
+}
+function noteLabel(pos) { return chrom[(tuning[pos[0]] + pos[1]) % 12]; }
+function showLead(c, index) {
+  const pattern = leadPatterns[c];
+  if (!pattern) return;
+  const pos = pattern[index % 8];
+  if (!filterAllows((tuning[pos[0]] + pos[1]) % 12, c)) return;
+  leadPosition = {s: pos[0], f: pos[1]};
+  setText('leadReadout', `${c} chord · note ${index % 8 + 1}/8: ${noteLabel(pos)} — ${['high e','B','G','D','A','low E'][pos[0]]} string, fret ${pos[1]}`);
+  drawLeadSteps(index % 8);
+  neck();
+}
+function drawLeadSteps(index = -1) {
+  const c = active();
+  const pattern = leadPatterns[c] || [];
+  $('leadSteps').innerHTML = pattern.map((p, i) => `<span class="${i === index ? 'now' : ''}">${i + 1}. ${noteLabel(p)} · ${['e','B','G','D','A','E'][p[0]]}${p[1]}</span>`).join('');
+}
+
+const hz = midi => 440 * Math.pow(2, (midi - 69) / 12);
+const mix = id => (+$('' + id + 'Volume').value) / 100;
+let noiseBuffer = null;
+function noise() {
+  if (noiseBuffer && noiseBuffer.sampleRate === ctx.sampleRate) return noiseBuffer;
+  noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
+  const a = noiseBuffer.getChannelData(0);
+  for (let i = 0; i < a.length; i++) a[i] = Math.random() * 2 - 1;
+  return noiseBuffer;
+}
+function envelope(at, peak, attack, decay, dest) {
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(.0001, at);
+  g.gain.linearRampToValueAtTime(Math.max(.0002, peak), at + attack);
+  g.gain.exponentialRampToValueAtTime(.0001, at + Math.max(decay, attack + .02));
+  g.connect(dest);
+  return g;
+}
+function tick(at) {
+  if (!ctx || !master) return;
+  const o = ctx.createOscillator(), g = envelope(at, .065, .003, .05, master);
+  o.type = 'sine'; o.frequency.value = 880; o.connect(g); o.start(at); o.stop(at + .06);
+}
+const driveCurves = {};
+function driveCurve(k) {
+  if (driveCurves[k]) return driveCurves[k];
+  const n = 1024, curve = new Float32Array(n);
+  const norm = Math.tanh(k);
+  for (let i = 0; i < n; i++) {
+    const x = i / (n - 1) * 2 - 1;
+    curve[i] = Math.tanh(k * x) / norm;
+  }
+  driveCurves[k] = curve;
+  return curve;
+}
+function buildAmp(tone) {
+  const input = ctx.createGain();
+  let node = input;
+  if (tone === 'crunch' || tone === 'drive') {
+    const pre = ctx.createGain();
+    pre.gain.value = tone === 'drive' ? 2.15 : 1.5;
+    const sh = ctx.createWaveShaper();
+    sh.curve = driveCurve(tone === 'drive' ? 4.8 : 2.8);
+    sh.oversample = '2x';
+    const post = ctx.createGain();
+    post.gain.value = tone === 'drive' ? 0.62 : 0.8;
+    node.connect(pre); pre.connect(sh); sh.connect(post); node = post;
+  }
+  const hp = ctx.createBiquadFilter();
+  hp.type = 'highpass'; hp.frequency.value = tone === 'acoustic' ? 70 : 85; hp.Q.value = 0.7;
+  node.connect(hp); node = hp;
+  function peak(freq, gain, q) {
+    const f = ctx.createBiquadFilter();
+    f.type = 'peaking'; f.frequency.value = freq; f.gain.value = gain; f.Q.value = q;
+    node.connect(f); node = f;
+  }
+  if (tone === 'acoustic') { peak(155, 4.2, 1.05); peak(390, -2, 0.9); peak(2700, 2.6, 0.8); }
+  else if (tone === 'clean') { peak(190, 2.4, 0.8); peak(880, -1.6, 0.7); peak(2900, 2.8, 0.85); }
+  else if (tone === 'crunch') { peak(165, 3.4, 0.8); peak(820, -2.5, 0.75); peak(2100, 2, 0.8); }
+  else { peak(145, 4, 0.75); peak(720, -3, 0.8); peak(1850, 1.5, 0.7); }
+  const cab = ctx.createBiquadFilter();
+  cab.type = 'lowpass';
+  cab.frequency.value = tone === 'acoustic' ? 5400 : tone === 'clean' ? 4500 : tone === 'crunch' ? 3300 : 2800;
+  cab.Q.value = 0.5;
+  node.connect(cab); node = cab;
+  const comp = ctx.createDynamicsCompressor();
+  comp.threshold.value = -18; comp.knee.value = 8; comp.ratio.value = 2.2; comp.attack.value = 0.004; comp.release.value = 0.14;
+  node.connect(comp);
+  const makeup = ctx.createGain();
+  makeup.gain.value = 1.45;
+  comp.connect(makeup); makeup.connect(master);
+  return input;
+}
+function ampIn() {
+  const tone = $('guitarTone').value;
+  if (ampInput && ampTone === tone) return ampInput;
+  ampInput = buildAmp(tone);
+  ampTone = tone;
+  return ampInput;
+}
+function dampBus(at, seconds) {
+  if (!guitarBus) return;
+  const bus = guitarBus;
+  guitarBus = null;
+  const t = Math.max(at, ctx.currentTime);
+  bus.gain.cancelScheduledValues(t);
+  bus.gain.setValueAtTime(Math.max(0.0001, bus.gain.value || 1), t);
+  bus.gain.linearRampToValueAtTime(0, t + seconds);
+  const wait = Math.max(0, (t + seconds + 0.25 - ctx.currentTime) * 1000);
+  setTimeout(() => { try { bus.disconnect(); } catch (e) {} }, wait);
+}
+function chordBus(at) {
+  const input = ampIn();
+  if (guitarBus && guitarBus._amp === input) return guitarBus;
+  if (guitarBus) {
+    const old = guitarBus;
+    const t = Math.max(at, ctx.currentTime);
+    old.gain.cancelScheduledValues(t);
+    old.gain.setValueAtTime(Math.max(0.0001, old.gain.value || 1), t);
+    old.gain.linearRampToValueAtTime(0, t + 0.04);
+    const wait = Math.max(0, (t + 0.3 - ctx.currentTime) * 1000);
+    setTimeout(() => { try { old.disconnect(); } catch (e) {} }, wait);
+  }
+  guitarBus = ctx.createGain();
+  guitarBus.gain.setValueAtTime(1, at);
+  guitarBus.connect(input);
+  guitarBus._amp = input;
+  return guitarBus;
+}
+function partialsFor(tone, palm, lead) {
+  if (lead) return [[1, 1, 1], [2, .36, .42], [3, .12, .18]];
+  if (palm) return [[1, 1, .45], [2, .3, .16], [3, .07, .08]];
+  if (tone === 'acoustic') return [[1, 1, 1], [2, .48, .46], [3, .22, .24], [4, .09, .13], [5, .035, .07]];
+  if (tone === 'clean') return [[1, 1, 1], [2, .4, .38], [3, .15, .18], [4, .05, .09]];
+  if (tone === 'crunch') return [[1, 1, .82], [2, .48, .32], [3, .2, .15], [4, .07, .08]];
+  return [[1, 1, .7], [2, .55, .28], [3, .24, .13], [4, .09, .07]];
+}
+function guitarString(freq, at, velocity = .6, opts = {}) {
+  if (!ctx || !master || freq < 20) return;
+  if (at < ctx.currentTime) at = ctx.currentTime + 0.004;
+  const lead = !!opts.lead;
+  const tone = lead ? 'clean' : $('guitarTone').value;
+  const palm = !!opts.palm && !lead;
+  const style = $('style').value;
+  let dur = opts.duration;
+  if (!dur) {
+    dur = palm ? 0.12 : tone === 'acoustic' ? 1.6 : tone === 'clean' ? 1.15 : 0.9;
+    if (!palm && (style === 'ballad' || style === 'arpeggio' || style === 'pulse' || style === 'acoustic')) dur *= 1.18;
+    if (style === 'reggae') dur = Math.min(dur, 0.16);
+  }
+  const peak = lead ? 0.16 * velocity : 0.15 * velocity * mix('guitar');
+  if (peak < 0.0002) return;
+  const stringGain = ctx.createGain();
+  stringGain.gain.setValueAtTime(0.0001, at);
+  stringGain.gain.linearRampToValueAtTime(peak, at + (palm ? 0.002 : 0.004));
+  if (!palm && dur > 0.12) stringGain.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak * 0.55), at + 0.08);
+  stringGain.gain.exponentialRampToValueAtTime(0.0001, at + Math.max(0.05, dur));
+  stringGain.connect(lead ? master : chordBus(at));
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass';
+  const midi = 69 + 12 * Math.log2(freq / 440);
+  const tilt = Math.max(0.55, Math.min(1.2, midi / 68));
+  const open = palm ? 650 + velocity * 500 : Math.min(7600, (1500 + velocity * 3600) * tilt);
+  const shut = palm ? 420 : Math.max(480, (800 + velocity * 350) * tilt);
+  lp.frequency.setValueAtTime(open, at);
+  lp.frequency.exponentialRampToValueAtTime(Math.max(80, shut), at + (palm ? 0.05 : 0.22));
+  lp.Q.value = 0.55;
+  lp.connect(stringGain);
+  const cents = Math.random() * 5 - 2.5;
+  const stiff = 0.00007;
+  partialsFor(tone, palm, lead).forEach(([n, amp, decay]) => {
+    const o = ctx.createOscillator();
+    o.type = 'sine';
+    if (n === 1 && !palm) {
+      o.frequency.setValueAtTime(freq * 0.995, at);
+      o.frequency.exponentialRampToValueAtTime(freq, at + 0.03);
+    } else o.frequency.setValueAtTime(freq * n * Math.sqrt(1 + stiff * n * n), at);
+    o.detune.setValueAtTime(cents, at);
+    const pg = ctx.createGain();
+    if (decay >= 0.95) pg.gain.setValueAtTime(amp, at);
+    else {
+      pg.gain.setValueAtTime(Math.max(0.0002, amp), at);
+      pg.gain.exponentialRampToValueAtTime(0.001, at + Math.max(0.04, dur * decay));
+    }
+    o.connect(pg).connect(lp);
+    o.start(at + (n - 1) * 0.0007);
+    o.stop(at + Math.max(0.06, decay >= 0.95 ? dur : dur * decay) + 0.03);
+  });
+  if (!lead && !palm && tone !== 'acoustic') {
+    const o = ctx.createOscillator();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(freq, at);
+    o.detune.setValueAtTime(cents + 8 + Math.random() * 5, at);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.12, at);
+    g.gain.exponentialRampToValueAtTime(0.001, at + dur * 0.7);
+    const delay = ctx.createDelay(0.05);
+    delay.delayTime.setValueAtTime(0.011, at);
+    o.connect(g).connect(delay).connect(lp);
+    o.start(at); o.stop(at + dur * 0.72);
+  }
+  const pick = ctx.createBufferSource();
+  pick.buffer = noise();
+  const bp = ctx.createBiquadFilter();
+  bp.type = 'bandpass';
+  bp.frequency.value = tone === 'acoustic' ? 3400 : tone === 'clean' ? 2400 : 1700;
+  bp.Q.value = 0.7;
+  const pg = ctx.createGain();
+  const pickAmp = (lead ? 0.03 : 0.04 * mix('guitar')) * velocity * (palm ? 1.35 : 1);
+  pg.gain.setValueAtTime(Math.max(0.0002, pickAmp), at);
+  pg.gain.exponentialRampToValueAtTime(0.0001, at + (tone === 'acoustic' ? 0.018 : 0.028));
+  pick.connect(bp).connect(pg).connect(stringGain);
+  pick.start(at); pick.stop(at + 0.04);
+}
+function guitarMidi(c, power) {
+  const p = chordParts(c);
+  let rootMidi = 48 + p.pc;
+  while (rootMidi < 52) rootMidi += 12;
+  while (rootMidi > 63) rootMidi -= 12;
+  if (power) return [rootMidi, rootMidi + 7, rootMidi + 12];
+  const third = p.minor ? 3 : 4;
+  return [rootMidi, rootMidi + 7, rootMidi + 12, rootMidi + 12 + third, rootMidi + 19];
+}
+function strumTimes(count, span, up) {
+  const out = [];
+  for (let i = 0; i < count; i++) {
+    const t = count === 1 ? 0 : i / (count - 1);
+    const shaped = 1 - Math.pow(1 - t, up ? 1.15 : 1.5);
+    out.push(Math.max(0, shaped * span + (Math.random() * 2 - 1) * 0.0012));
+  }
+  return out;
+}
+function guitarStroke(c, at, velocity = .7, up = false, muted = false, power = false) {
+  const style = $('style').value;
+  const notes = guitarMidi(c, power);
+  const ordered = up ? [...notes].reverse() : notes;
+  const tight = style === 'rock' || style === 'power' || style === 'pop' || style === 'arena' || style === 'reggae';
+  const soft = style === 'ballad' || style === 'pulse' || style === 'acoustic';
+  const palm = muted || style === 'reggae';
+  const span = palm ? 0.012 : up ? (tight ? 0.02 : 0.03) : (tight ? 0.028 : soft ? 0.05 : 0.038);
+  const times = strumTimes(ordered.length, span, up);
+  ordered.forEach((m, i) => {
+    const rel = ordered.length === 1 ? 0 : i / (ordered.length - 1);
+    const dyn = velocity * (up ? 0.82 : 1) * (1 - rel * 0.1) * (0.94 + Math.random() * 0.08);
+    guitarString(hz(m), at + times[i], dyn, {palm, short: palm});
+  });
+}
+function bassStroke(c, at, duration = .8, accent = 1) {
+  if (!ctx || !master) return;
+  const f = hz(36 + chordParts(c).pc);
+  const peak = 0.2 * mix('bass') * accent;
+  if (peak < 0.0002) return;
+  const g = envelope(at, peak, 0.008, Math.max(0.15, duration), master);
+  const o = ctx.createOscillator();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(f * 0.985, at);
+  o.frequency.exponentialRampToValueAtTime(f, at + 0.045);
+  o.connect(g); o.start(at); o.stop(at + duration + 0.05);
+  const g2 = envelope(at, peak * 0.16, 0.004, Math.min(0.22, duration * 0.4), master);
+  const o2 = ctx.createOscillator();
+  o2.type = 'sine'; o2.frequency.setValueAtTime(f * 2, at);
+  o2.connect(g2); o2.start(at); o2.stop(at + 0.25);
+  const src = ctx.createBufferSource();
+  src.buffer = noise();
+  const bp = ctx.createBiquadFilter();
+  bp.type = 'bandpass'; bp.frequency.value = 200; bp.Q.value = 0.8;
+  const ng = envelope(at, peak * 0.1, 0.002, 0.025, master);
+  src.connect(bp).connect(ng); src.start(at); src.stop(at + 0.04);
+}
+function leadTone(pos, at, dur) {
+  const midi = [64, 59, 55, 50, 45, 40][pos[0]] + pos[1];
+  guitarString(hz(midi), at, 0.7, {lead: true, duration: Math.max(0.28, dur)});
+}
+function leadBeat(c, b, at, sec) {
+  if (!guided || !$('autoLead').checked) return;
+  const pattern = leadPatterns[c];
+  if (!pattern) return;
+  for (let j = 0; j < 2; j++) {
+    const i = b * 2 + j, t = at + j * sec / 2, p = pattern[i];
+    if (!p) continue;
+    const pc = (tuning[p[0]] + p[1]) % 12;
+    if (filterAllows(pc, c) && $('leadSound').checked) leadTone(p, t, sec * .43);
+    const delay = Math.max(0, (t - ctx.currentTime) * 1000);
+    leadTimers.push(setTimeout(() => {
+      if (guided && $('autoLead').checked && filterAllows(pc, c)) showLead(c, i);
+    }, delay));
+  }
+}
+function drumHit(type, at, velocity = 1) {
+  if (!ctx || !master || $('drumGroove').value === 'off') return;
+  if (type === 'kick' && !$('kickOn').checked || type === 'snare' && !$('snareOn').checked || type === 'hat' && !$('hatOn').checked || type === 'crash' && !$('crashOn').checked) return;
+  const vol = mix('drum') * velocity;
+  if (type === 'kick') {
+    const o = ctx.createOscillator(), g = envelope(at, .8 * vol, .003, .29, master);
+    o.type = 'sine'; o.frequency.setValueAtTime(145, at); o.frequency.exponentialRampToValueAtTime(48, at + .13);
+    o.connect(g); o.start(at); o.stop(at + .31); return;
+  }
+  const src = ctx.createBufferSource();
+  src.buffer = noise();
+  const filter = ctx.createBiquadFilter();
+  filter.type = type === 'snare' ? 'bandpass' : 'highpass';
+  filter.frequency.value = type === 'snare' ? 1750 : type === 'crash' ? 4800 : 7200;
+  filter.Q.value = type === 'snare' ? .65 : .4;
+  const dur = type === 'snare' ? .19 : type === 'crash' ? 1.1 : .07;
+  const gain = envelope(at, (type === 'snare' ? .31 : type === 'crash' ? .23 : .12) * vol, .003, dur, master);
+  src.connect(filter).connect(gain); src.start(at); src.stop(at + dur + .02);
+  if (type === 'snare') {
+    const o = ctx.createOscillator(), g = envelope(at, .09 * vol, .003, .11, master);
+    o.type = 'triangle'; o.frequency.value = 180; o.connect(g); o.start(at); o.stop(at + .12);
+  }
+}
+const strums = {
+  rock: [[0,.82],[2,.48,1],[4,.8],[6,.52,1],[8,.85],[10,.45,1],[12,.72],[14,.55,1]],
+  arena: [[0,1],[3,.45,1],[4,.8],[7,.5,1],[8,1],[11,.45,1],[12,.85],[14,.65,1]],
+  acoustic: [[0,.8],[2,.48,1],[4,.68],[6,.52,1],[8,.8],[10,.5,1],[11,.42,1],[14,.6,1]],
+  ballad: [[0,.72],[4,.4,1],[8,.65],[12,.45,1]],
+  country: [[0,.78],[3,.42,1],[6,.65],[9,.4,1],[12,.7],[15,.45,1]],
+  pop: [[0,.8],[2,.4,1],[3,.38,1],[6,.5,1],[8,.85],[10,.42,1],[11,.4,1],[14,.55,1],[15,.38,1]],
+  reggae: [[2,.72,1,1],[6,.72,1,1],[10,.72,1,1],[14,.72,1,1]],
+  blues: [[0,.82],[3,.42,1],[6,.75],[9,.45,1],[12,.76],[15,.48,1]],
+  power: [[0,.9,0,0,1],[2,.44,0,1,1],[4,.72,0,0,1],[6,.46,0,1,1],[8,.9,0,0,1],[10,.46,0,1,1],[12,.8,0,0,1],[14,.52,0,1,1]],
+  arpeggio: [[0,.68],[4,.5],[8,.65],[12,.48]],
+  pulse: [[0,.58],[4,.48],[8,.58],[12,.48]]
+};
+const drumGrooves = {
+  rock: {kick:[0,8], snare:[4,12], hat:[0,2,4,6,8,10,12,14]},
+  arena: {kick:[0,6,8,14], snare:[4,12], hat:[0,2,4,6,8,10,12,14]},
+  ballad: {kick:[0,8], snare:[4,12], hat:[0,4,8,12]},
+  shuffle: {kick:[0,6,8,14], snare:[4,12], hat:[0,3,6,9,12,15]},
+  country: {kick:[0,8], snare:[4,12], hat:[0,3,6,9,12,15]},
+  pop: {kick:[0,3,8,11], snare:[4,12], hat:[0,2,4,6,8,10,12,14]}
+};
+function schedule(b, at) {
+  if (!ctx || !master) return;
+  const c = selectedChord || progression()[Math.floor(b / 4) % progression().length];
+  const within = b % 4, sec = 60 / (+$('tempo').value);
+  const barNumber = Math.floor(b / 4), style = $('style').value, strokes = strums[style] || strums.rock;
+  if (c !== lastChord) {
+    const ring = style === 'arpeggio' || style === 'ballad' || style === 'pulse' || style === 'acoustic';
+    dampBus(at, ring ? 0.2 : style === 'reggae' ? 0.03 : 0.055);
+    lastChord = c;
+  }
+  if (within === 0 || within === 2) bassStroke(c, at, sec * (within === 0 ? 1.3 : 0.85), within === 0 ? 1 : .7);
+  if (style === 'arpeggio') {
+    const notes = guitarMidi(c, false);
+    for (let i = 0; i < 4; i++) guitarString(hz(notes[(within + i) % notes.length]), at + i * sec / 4, within === 0 && i === 0 ? 0.72 : 0.5);
+  } else strokes.filter(x => Math.floor(x[0] / 4) === within).forEach(x => {
+    const step = x[0] % 4;
+    let when = at + step * sec / 4;
+    if ((style === 'blues' || style === 'country') && step !== 0) when += 0.008;
+    if (x[2] && step !== 0) when -= 0.004;
+    const vel = within === 0 && step === 0 ? Math.min(1, x[1] * 1.06) : x[1];
+    guitarStroke(c, Math.max(at - 0.01, when), vel, !!x[2], !!x[3], !!x[4]);
+  });
+  const groove = drumGrooves[$('drumGroove').value];
+  if (groove) {
+    for (const [name, steps] of Object.entries(groove)) for (const step of steps) if (Math.floor(step / 4) === within) drumHit(name, at + (step % 4) * sec / 4, step === 0 ? 1 : .83);
+    if (within === 0 && barNumber % 4 === 0 && $('crashOn').checked) drumHit('crash', at, .8);
+    if ($('fillsOn').checked && barNumber % 4 === 3 && within === 3) {
+      drumHit('snare', at + sec * .5, .55);
+      drumHit('snare', at + sec * .75, .75);
+    }
+  }
+  if (guided) leadBeat(c, within, at, sec);
+  if ($('click').checked) tick(at);
+}
+function advance() {
+  beat++;
+  if (beat >= 4) { beat = 0; bar = (bar + 1) % progression().length; }
+  nextTime += 60 / (+$('tempo').value);
+}
+function scheduler() {
+  if (!playing || !ctx) return;
+  try {
+    while (nextTime < ctx.currentTime + .12) {
+      schedule(bar * 4 + beat, nextTime);
+      soundingAt = nextTime;
+      soundingIndex = bar * 4 + beat;
+      armed = true;
+      advance();
+    }
+  } catch (e) {
+    playing = false;
+    clearInterval(timer);
+    timer = null;
+    setText('status', 'Audio error: ' + e.message);
+    $('play').disabled = false;
+    $('play').textContent = '▶ Play backing track';
+    return;
+  }
+  paintTransport();
+}
+function resetGuitar() {
+  ampInput = null; ampTone = null; guitarBus = null; lastChord = null; noiseBuffer = null;
+}
+$('play').onclick = async () => {
+  if (playing) return;
+  ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+  await ctx.resume();
+  master = ctx.createGain();
+  master.gain.value = .65;
+  master.connect(ctx.destination);
+  resetGuitar();
+  playing = true;
+  beat = 0; bar = 0; armed = false;
+  const sec = 60 / (+$('tempo').value);
+  nextTime = ctx.currentTime + ($('countIn').checked ? 4 * sec : .06);
+  if ($('countIn').checked) {
+    countUntil = nextTime; countStep = sec;
+    for (let i = 0; i < 4; i++) tick(ctx.currentTime + .04 + i * sec);
+  } else countUntil = 0;
+  scheduler();
+  timer = setInterval(scheduler, 45);
+  paintTransport();
+};
+$('stop').onclick = () => {
+  playing = false; guided = false; armed = false; countUntil = 0;
+  leadTimers.forEach(clearTimeout); leadTimers = [];
+  clearInterval(timer); timer = null;
+  if (master && ctx) master.gain.setTargetAtTime(.0001, ctx.currentTime, .035);
+  master = null;
+  resetGuitar();
+  beat = 0; bar = 0; leadPosition = null; lastPainted = '';
+  $('demo').textContent = '▶ Start guided melody';
+  setText('leadReadout', 'Stopped. Press Play to start the track, or Start guided melody to follow along.');
+  paintTransport();
+  neck();
+  drawLeadSteps();
+};
+$('tempo').oninput = () => { setText('bpm', $('tempo').value + ' BPM'); paintTransport(); };
+$('progression').onchange = () => {
+  labStop();
+  bar = 0; beat = 0; selectedChord = null; lastPainted = ''; lastChord = null;
+  labChord = progression()[0];
+  labSequence = []; labIndex = 0;
+  refreshHarmony();
+  showBoxes();
+  labChordButtons();
+  paintTransport();
+  neck();
+  drawLeadSteps();
+};
+$('resume').onclick = () => { selectedChord = null; manualIndex = 0; lastPainted = ''; paintTransport(); neck(); drawLeadSteps(); };
+$('bm').onclick = () => selectChord(mediantChord());
+$('demo').onclick = async () => {
+  guided = true;
+  $('autoLead').checked = true;
+  $('demo').textContent = '✓ Guided melody on';
+  if (!playing) await $('play').onclick();
+  else { leadTimers.forEach(clearTimeout); leadTimers = []; }
+};
+$('pauseDemo').onclick = () => {
+  guided = false;
+  leadTimers.forEach(clearTimeout); leadTimers = [];
+  leadPosition = null;
+  $('demo').textContent = '▶ Start guided melody';
+  setText('leadReadout', 'Melody stopped. The backing track keeps going if it was playing.');
+  neck();
+  drawLeadSteps();
+};
+$('nextNote').onclick = () => {
+  const c = active();
+  const pattern = leadPatterns[c];
+  if (!pattern) return;
+  const index = manualIndex % 8;
+  manualIndex++;
+  showLead(c, index);
+  const pos = pattern[index];
+  if ($('leadSound').checked && filterAllows((tuning[pos[0]] + pos[1]) % 12, c)) {
+    ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+    ctx.resume().then(() => {
+      if (!master || !playing) {
+        master = ctx.createGain();
+        master.gain.value = .65;
+        master.connect(ctx.destination);
+      }
+      leadTone(pos, ctx.currentTime + .02, .4);
+    });
+  }
+};
+$('melodyStyle').onchange = () => { refreshMelody(); drawLeadSteps(); neck(); };
+$('guitarTone').onchange = () => { ampInput = null; ampTone = null; paintTransport(); };
+for (const id of ['guitarVolume', 'bassVolume', 'drumVolume']) {
+  $(id).oninput = () => { const out = $(id.replace('Volume', 'VolOut')); if (out) out.textContent = $(id).value; };
+}
+document.addEventListener('keydown', e => {
+  if (e.code !== 'Space' || e.repeat) return;
+  if (e.target.closest('button, input, select, textarea, a')) return;
+  e.preventDefault();
+  if (playing) $('stop').click();
+  else $('play').click();
+});
+
+function labChordButtons() {
+  const list = [...new Set([...progression(), mediantChord()])];
+  $('labChords').innerHTML = list.map(c => `<button type="button" class="practiceBtn ${labChord === c ? 'active' : ''}" data-lab="${c}">${c}</button>`).join('');
+  document.querySelectorAll('[data-lab]').forEach(b => b.onclick = () => {
+    labChord = b.dataset.lab;
+    labIndex = 0; labSequence = [];
+    selectChord(labChord);
+    $('labReadout').textContent = `${labChord}: ${chordNotes[labChord].map(n => chrom[n]).join(' · ')}. Ready to climb.`;
+  });
+}
+function filterAllows(n, c = active()) {
+  if (noteFilter === 'pent') return pent.includes(n) || n === root[c];
+  if (noteFilter === 'roots') return n === root[c];
+  if (noteFilter === 'extras') return chordNotes[c].includes(n) && n !== root[c];
+  if (noteFilter === 'arp') return chordNotes[c].includes(n);
+  return pent.includes(n) || chordNotes[c].includes(n);
+}
+function labAllowed() { return Array.from({length: 12}, (_, n) => n).filter(n => filterAllows(n, labChord)); }
+function applyFilter(v, fromUser) {
+  noteFilter = v;
+  leadPosition = null;
+  labSequence = []; labIndex = 0;
+  labStop();
+  guided = false;
+  leadTimers.forEach(clearTimeout); leadTimers = [];
+  $('demo').textContent = '▶ Start guided melody';
+  document.querySelectorAll('[data-filter]').forEach(b => {
+    const on = b.dataset.filter === v;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-pressed', String(on));
+  });
+  const descriptions = {
+    pent: 'Pentatonic in blue: ' + pent.map(n => chrom[n]).join(' · ') + '. The current chord root stays green so you can land on it, even when that root is outside the five notes.',
+    roots: 'Chord roots only. Green dots are the notes to land on.',
+    extras: 'Other chord tones only: the third and fifth, without the root.',
+    arp: 'Chord tones only: root, third, and fifth. Use this to practice the arpeggio.',
+    all: 'All notes: blue pentatonic, green root, amber other chord tones.'
+  };
+  $('filterHelp').textContent = descriptions[v];
+  const labValue = v === 'pent' ? 'pent' : v === 'all' ? 'tones' : v === 'arp' ? 'arpeggio' : null;
+  if (labValue) $('labNotes').value = labValue;
+  neck();
+  if (fromUser) setText('leadReadout', 'Filter changed. Press Start guided melody or Next note.');
+}
+document.querySelectorAll('[data-filter]').forEach(b => b.onclick = () => applyFilter(b.dataset.filter, true));
+function labBuild() {
+  const allowed = labAllowed(), a = [];
+  boxPositions().forEach((frets, s) => frets.forEach((f, i) => {
+    const n = (tuning[s] + f) % 12;
+    if (allowed.includes(n)) a.push({s, f, n, midi: [64, 59, 55, 50, 45, 40][s] + f, finger: boxFinger(selectedBox, s, i)});
+  }));
+  a.sort((x, y) => x.midi - y.midi || y.s - x.s);
+  const dir = $('labDirection').value;
+  return dir === 'down' ? a.reverse() : dir === 'up' ? a : a.concat(a.slice(0, -1).reverse());
+}
+function coachInstruction(p, previous) {
+  const base = handBase(boxPositions()), f = p.f, name = chrom[p.n], finger = p.finger;
+  if (f === 0) return 'Open string: play ' + name + ' without pressing a fret. Keep your fretting hand relaxed near the home position.';
+  let shift = f < base
+    ? `Move your hand back one fret for ${name} at fret ${f}; use finger ${finger}. Return to the home position comfortably.`
+    : f > base + 3
+      ? `Shift forward to reach ${name} at fret ${f}; don't force a stretch.`
+      : `Stay relaxed in your ${base}–${base + 3} home position. Finger ${finger} plays ${name} at fret ${f}.`;
+  if ($('handMode').value === 'fluid' && previous && Math.abs(previous.f - f) >= 3) shift = `Position change: release pressure, slide/shift smoothly from fret ${previous.f} toward fret ${f}. ` + shift;
+  return shift;
+}
+async function labAdvance() {
+  if (!labSequence.length || labIndex >= labSequence.length) { labSequence = labBuild(); labIndex = 0; }
+  const previous = labIndex ? labSequence[labIndex - 1] : null;
+  const p = labSequence[labIndex++];
+  if (!p) return;
+  neck();
+  $('handInstruction').textContent = $('handCoach').checked ? coachInstruction(p, previous) : 'Hand Position Coach is off.';
+  $('labReadout').textContent = `${labChord} · ${chrom[p.n]} · ${['high E','B','G','D','A','low E'][p.s]} string · fret ${p.f} · finger ${p.finger} · ${labIndex}/${labSequence.length}`;
+  if ($('labAudio').checked) {
+    ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+    await ctx.resume();
+    if (!master) {
+      master = ctx.createGain();
+      master.gain.value = .65;
+      master.connect(ctx.destination);
+    }
+    leadTone([p.s, p.f], ctx.currentTime + .02, .45);
+  }
+}
+function labStop() {
+  labRunning = false;
+  clearInterval(labTimer);
+  labTimer = null;
+  $('labPlay').textContent = '▶ Play scale';
+}
+$('labPlay').onclick = () => {
+  if (labRunning) { labStop(); return; }
+  labRunning = true;
+  $('labPlay').textContent = '❚❚ Pause scale';
+  labAdvance();
+  labTimer = setInterval(() => { if (labRunning) labAdvance(); }, Math.max(180, 60000 / (+$('handTempo').value)));
+};
+$('labStop').onclick = labStop;
+$('labNext').onclick = () => { labStop(); labAdvance(); };
+$('labDirection').onchange = () => { labSequence = []; labIndex = 0; neck(); };
+$('labNotes').onchange = () => applyFilter($('labNotes').value === 'pent' ? 'pent' : $('labNotes').value === 'arpeggio' ? 'arp' : 'all', true);
+$('range').onchange = () => {
+  if ($('range').value === '12' && selectedBox === 0) $('boxOctave').value = '0';
+  labSequence = []; labIndex = 0;
+  refreshMelody();
+  neck();
+  drawLeadSteps();
+};
+$('names').onchange = neck;
+$('fingerDisplay').onchange = neck;
+
+function boxPositions() {
+  let shape = boxShapes[selectedBox].map(a => a.map(f => f + keyShift));
+  if (selectedBox === 0 && $('boxOctave').value === '12') return shape;
+  let min = Math.min(...shape.flat());
+  while (min >= 12) { shape = shape.map(a => a.map(f => f - 12)); min -= 12; }
+  while (min < 0) { shape = shape.map(a => a.map(f => f + 12)); min += 12; }
+  if ($('range').value === '24' && selectedBox !== 0) shape = shape.map(a => a.map(f => f + 12));
+  return shape;
+}
+function boxFinger(b, s, i) {
+  const p = boxPositions()[s], f = p[i];
+  if (f === 0) return 0;
+  const d = p[1] - p[0];
+  if (d === 2) return i === 0 ? 1 : 3;
+  if (d === 3) return i === 0 ? 1 : 4;
+  return i === 0 ? 1 : 3;
+}
+function showBoxes() {
+  const labels = ['Box 1 · relative minor root', 'Box 2 · major root area', 'Box 3 · second scale degree area', 'Box 4 · third scale degree area', 'Box 5 · fifth scale degree area'];
+  $('boxButtons').innerHTML = labels.map((x, i) => `<button type="button" class="boxBtn ${selectedBox === i ? 'active' : ''}" data-box="${i}" aria-pressed="${selectedBox === i}">${x}</button>`).join('');
+  document.querySelectorAll('[data-box]').forEach(b => b.onclick = () => {
+    selectedBox = Number(b.dataset.box);
+    labStop();
+    labSequence = []; labIndex = 0;
+    showBoxes();
+    neck();
+  });
+  const p = boxPositions();
+  const low = Math.min(...p.flat()), high = Math.max(...p.flat());
+  $('boxGuide').textContent = `Box ${selectedBox + 1}: frets ${low}–${high} · two notes per string · 1=index, 3=ring, 4=pinky. Play low E → high E → low E. ${selectedBox === 2 ? 'The G-string low note falls one fret behind the typical hand area; move your index comfortably.' : ''}`;
+}
+$('boxOctave').onchange = () => {
+  if ($('boxOctave').value === '12') $('range').value = '24';
+  labStop(); labSequence = []; labIndex = 0;
+  showBoxes(); neck();
+};
+$('boxOnly').onchange = neck;
+for (const id of ['handCoach', 'handMode']) $(id).onchange = () => {
+  labStop(); labSequence = []; labIndex = 0; neck();
+  $('handInstruction').textContent = id === 'handMode' && $('handMode').value === 'fluid'
+    ? 'Fluid mode: practice smooth shifts between notes; keep fingers relaxed.'
+    : 'Choose Next note to see the recommended movement.';
+};
+$('handTempo').oninput = () => {
+  setText('handBpm', $('handTempo').value + ' BPM');
+  if (labRunning) { labStop(); $('labPlay').click(); }
+};
+
+refreshHarmony();
+showBoxes();
+labChordButtons();
+applyFilter('pent');
+paintTransport();
+neck();
+drawLeadSteps();
+</script>
+</body>
+</html>
