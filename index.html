@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Pentatonic Jam Trainer v15</title>
+<title>Pentatonic Jam Trainer v16</title>
 <style>
 body{background:#101827;color:#f1f5f9;font:16px system-ui;margin:0;padding:24px}
 main{max-width:1150px;margin:auto}
@@ -68,6 +68,22 @@ small,.hint{color:#b9c6d8}
 .boxBtn{min-width:110px}
 .boxBtn.active{background:#116d54;border-color:#a7f3d0}
 .noteLine{font-size:18px;color:#fde68a;font-weight:700}
+.songParts{background:#14243a;border:1px solid #466182;border-radius:12px;padding:14px;margin-top:14px}
+.songParts h3{margin:0 0 6px}
+#playMelody.active{background:#be123c;border-color:#fecdd3}
+#playLeadPart.active{background:#6d28d9;border-color:#ddd6fe}
+#playBothParts.active{background:#1c7d59;border-color:#34d399}
+.partReadout{display:flex;flex-direction:column;gap:8px;margin-top:10px;min-height:72px}
+.partCard{background:#152238;border-radius:10px;padding:10px 12px}
+.partCard.melody{border-left:4px solid #be123c}
+.partCard.lead{border-left:4px solid #6d28d9}
+.partKicker{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#a8b6cb}
+.partPitch{font-size:22px;font-weight:800;line-height:1.1;margin:2px 0}
+.partCard.melody .partPitch{color:#fecdd3}
+.partCard.lead .partPitch{color:#ddd6fe}
+.partWhere{color:#fde68a;font-weight:700;margin:0}
+.partPlaces{margin:4px 0 0;color:#e2e8f0}
+#songParts[hidden],#guidedPanel[hidden]{display:none !important}
 @media(max-width:900px){.setup,.nowbar{grid-template-columns:1fr}.nowActions{justify-content:flex-start}}
 @media(max-width:600px){body{padding:12px}.chord{padding:10px;font-size:19px}.nowChord{font-size:32px}h1{font-size:1.45rem}}
 </style>
@@ -180,7 +196,7 @@ small,.hint{color:#b9c6d8}
     <button id="bm" type="button">Practice iii · Bm</button>
     <span id="selection" class="muted">Following the loop</span>
   </div>
-  <p><small>4 beats per chord, continuous looping. Song-inspired arrangements use their listed original keys but simplified practice progressions, not full song transcriptions or recordings. Fretboard, chord tones, lead demonstrations, and box positions follow the selected key. Audio starts after you press Play. Change tempo, tone, or progression while playing.</small></p>
+  <p><small>4 beats per chord, continuous looping. Song-inspired arrangements use their listed original keys but simplified practice progressions, not full song transcriptions or recordings. The Don't Stop Believin' loop adds two original practice phrases — a melody and a lead — written for these chords. They are not the recorded vocal or guitar parts. Other loops keep the guided melody. Fretboard, chord tones, and box positions follow the selected key. Audio starts after you press Play. Change tempo, tone, or progression while playing.</small></p>
 </section>
 
 <section class="panel">
@@ -195,6 +211,21 @@ small,.hint{color:#b9c6d8}
   </div>
   <p class="hint" id="neckCue">Green is the root to land on when the chord changes. Blue notes are the rest of the pentatonic. Amber notes are the other chord tones — turn them on with the filters below.</p>
   <div class="scroll"><svg id="neck" role="img" aria-label="Transposable major and relative minor pentatonic fretboard"></svg></div>
+  <div id="songParts" class="songParts" hidden>
+    <h3>Practice melody and lead</h3>
+    <p class="hint">Original phrases for this E – B – C#m – A loop, using E major / C# minor pentatonic. Not the recorded vocal melody or lead guitar. The colored dot is the fingering in the pentatonic shape you picked, and the note lists the other places that same pitch can be played. Playback stays on the backing-track clock. Stop parts leaves the track running.</p>
+    <div class="controls">
+      <button id="playMelody" type="button" aria-pressed="false">▶ Play melody</button>
+      <button id="playLeadPart" type="button" aria-pressed="false">▶ Play lead</button>
+      <button id="playBothParts" type="button" aria-pressed="false">▶ Both</button>
+      <button id="stopParts" type="button">■ Stop parts</button>
+    </div>
+    <div class="legend">
+      <span><i class="dot" style="background:#be123c"></i>Melody</span>
+      <span><i class="dot" style="background:#6d28d9"></i>Lead</span>
+    </div>
+    <div id="partReadout" class="partReadout" aria-live="polite"></div>
+  </div>
   <div class="legend" id="noteFilters" aria-label="Choose which notes to see and hear">
     <button type="button" data-filter="pent" class="filterBtn active" aria-pressed="true"><i class="dot" style="background:#347cdb"></i>Pentatonic only</button>
     <button type="button" data-filter="roots" class="filterBtn" aria-pressed="false"><i class="dot" style="background:#15a56e"></i>Chord roots only</button>
@@ -250,7 +281,7 @@ small,.hint{color:#b9c6d8}
   <p class="hint">Gold = currently played note. Neck notes uses the same filter as the buttons under the fretboard. Scale Lab uses the fretboard above.</p>
 </section>
 
-<section class="panel">
+<section class="panel" id="guidedPanel">
   <h2>✨ Watch &amp; Play — Guided Lead Guitar</h2>
   <p class="muted" id="leadBlurb">A suggested eight-note melody for each chord. The gold dot moves along the neck as the lead notes sound. Watch it, then play it.</p>
   <div class="controls">
@@ -309,6 +340,9 @@ let countUntil = 0, countStep = 0, armed = false, soundingAt = 0, soundingIndex 
 let lastChord = null, guitarBus = null, ampInput = null, ampTone = null;
 let labChord = 'G', labSequence = [], labIndex = 0, labTimer = null, labRunning = false;
 let lastPainted = '';
+let partMode = null, partGen = 0, partEvents = [];
+let partCursor = { melody: null, lead: null };
+let partReadoutKey = '';
 
 function chordParts(c) {
   const m = /^([A-G](?:#|b)?)(m?)$/.exec(c);
@@ -438,6 +472,7 @@ function paintTransport() {
     neck();
     drawLeadSteps();
   }
+  syncPracticeCursor();
 }
 
 function selectChord(c) {
@@ -521,6 +556,8 @@ function neck() {
     }
   }
   applyPracticeOverlay(svg, ns);
+  drawPracticeMarkers(svg, ns);
+  renderPartReadout();
 }
 
 function handBase(pos) {
@@ -625,6 +662,389 @@ function drawLeadSteps(index = -1) {
   const c = active();
   const pattern = leadPatterns[c] || [];
   $('leadSteps').innerHTML = pattern.map((p, i) => `<span class="${i === index ? 'now' : ''}">${i + 1}. ${noteLabel(p)} · ${['e','B','G','D','A','E'][p[0]]}${p[1]}</span>`).join('');
+}
+
+// Original practice phrases for the E – B – C#m – A loop only.
+// Written for E major / C# minor pentatonic. Not a transcription of the recording.
+// string 0 is the high e; string/fret is the box-1 suggestion (frets 9–12). Playback
+// moves that suggestion onto whichever pentatonic shape is selected.
+const OPEN_MIDI = [64, 59, 55, 50, 45, 40];
+const PART_COLOR = { melody: '#be123c', lead: '#6d28d9' };
+const PRACTICE_PARTS = {
+  melody: [
+    { beat: 0, pitch: 'E4', midi: 64, string: 2, fret: 9 },
+    { beat: 1, pitch: 'F#4', midi: 66, string: 2, fret: 11 },
+    { beat: 2, pitch: 'G#4', midi: 68, string: 1, fret: 9 },
+    { beat: 3, pitch: 'F#4', midi: 66, string: 2, fret: 11 },
+    { beat: 4, pitch: 'B3', midi: 59, string: 3, fret: 9 },
+    { beat: 5, pitch: 'C#4', midi: 61, string: 3, fret: 11 },
+    { beat: 6, pitch: 'E4', midi: 64, string: 2, fret: 9 },
+    { beat: 7, pitch: 'F#4', midi: 66, string: 2, fret: 11 },
+    { beat: 7.5, pitch: 'E4', midi: 64, string: 2, fret: 9 },
+    { beat: 8, pitch: 'C#4', midi: 61, string: 3, fret: 11 },
+    { beat: 9, pitch: 'E4', midi: 64, string: 2, fret: 9 },
+    { beat: 10, pitch: 'G#4', midi: 68, string: 1, fret: 9 },
+    { beat: 11, pitch: 'F#4', midi: 66, string: 2, fret: 11 },
+    { beat: 12, pitch: 'E4', midi: 64, string: 2, fret: 9 },
+    { beat: 13, pitch: 'C#4', midi: 61, string: 3, fret: 11 },
+    { beat: 14, pitch: 'B3', midi: 59, string: 3, fret: 9 },
+    { beat: 14.5, pitch: 'C#4', midi: 61, string: 3, fret: 11 },
+    { beat: 15, pitch: 'E4', midi: 64, string: 2, fret: 9 }
+  ],
+  lead: [
+    { beat: 0, pitch: 'G#3', midi: 56, string: 4, fret: 11 },
+    { beat: 0.5, pitch: 'B3', midi: 59, string: 3, fret: 9 },
+    { beat: 1.5, pitch: 'C#4', midi: 61, string: 3, fret: 11 },
+    { beat: 2.5, pitch: 'E4', midi: 64, string: 2, fret: 9 },
+    { beat: 3.5, pitch: 'C#4', midi: 61, string: 3, fret: 11 },
+    { beat: 4, pitch: 'F#4', midi: 66, string: 2, fret: 11 },
+    { beat: 5, pitch: 'E4', midi: 64, string: 2, fret: 9 },
+    { beat: 5.5, pitch: 'F#4', midi: 66, string: 2, fret: 11 },
+    { beat: 6.5, pitch: 'G#4', midi: 68, string: 1, fret: 9 },
+    { beat: 7.5, pitch: 'C#4', midi: 61, string: 3, fret: 11 },
+    { beat: 8, pitch: 'G#4', midi: 68, string: 1, fret: 9 },
+    { beat: 9, pitch: 'F#4', midi: 66, string: 2, fret: 11 },
+    { beat: 9.5, pitch: 'B3', midi: 59, string: 3, fret: 9 },
+    { beat: 10.5, pitch: 'C#4', midi: 61, string: 3, fret: 11 },
+    { beat: 11.5, pitch: 'E4', midi: 64, string: 2, fret: 9 },
+    { beat: 12, pitch: 'C#4', midi: 61, string: 3, fret: 11 },
+    { beat: 13, pitch: 'B3', midi: 59, string: 3, fret: 9 },
+    { beat: 13.5, pitch: 'E4', midi: 64, string: 2, fret: 9 },
+    { beat: 14.5, pitch: 'F#4', midi: 66, string: 2, fret: 11 },
+    { beat: 15, pitch: 'B3', midi: 59, string: 3, fret: 9 },
+    { beat: 15.5, pitch: 'C#4', midi: 61, string: 3, fret: 11 }
+  ]
+};
+function isBelievinLoop() {
+  const opt = $('progression').selectedOptions[0];
+  return $('progression').value === 'E,B,C#m,A' && !!(opt && opt.dataset.key === 'E');
+}
+function pitchName(midi) {
+  return chrom[mod(midi)] + (Math.floor(midi / 12) - 1);
+}
+function placeName(s, f) {
+  const names = ['high e', 'B', 'G', 'D', 'A', 'low E'];
+  return f === 0 ? names[s] + ' open' : names[s] + ' string, fret ' + f;
+}
+function believinDefaultShape() {
+  const shift = mod(chrom.indexOf('E') - 7);
+  let shape = boxShapes[0].map(row => row.map(f => f + shift));
+  let min = Math.min(...shape.flat());
+  while (min >= 12) {
+    shape = shape.map(row => row.map(f => f - 12));
+    min -= 12;
+  }
+  return shape;
+}
+function validatePracticeParts() {
+  const shape = believinDefaultShape();
+  const pentatonic = new Set([1, 4, 6, 8, 11]);
+  const chords = ['E', 'B', 'C#m', 'A'];
+  const errors = [];
+  for (const voice of ['melody', 'lead']) {
+    const seen = new Set();
+    for (const note of PRACTICE_PARTS[voice]) {
+      if (note.beat < 0 || note.beat >= 16) errors.push(voice + ' beat ' + note.beat);
+      if (seen.has(note.beat)) errors.push(voice + ' duplicate beat ' + note.beat);
+      seen.add(note.beat);
+      if (note.pitch !== pitchName(note.midi)) errors.push(voice + ' pitch ' + note.pitch);
+      if (OPEN_MIDI[note.string] + note.fret !== note.midi) errors.push(voice + ' fret ' + note.pitch);
+      if (!shape[note.string].includes(note.fret)) errors.push(voice + ' off shape ' + note.pitch);
+      if (!pentatonic.has(mod(note.midi))) errors.push(voice + ' outside pentatonic ' + note.pitch);
+      if (Math.abs(note.beat - Math.round(note.beat)) < 1e-6 && Math.round(note.beat) % 4 === 0) {
+        const chord = chords[Math.round(note.beat) / 4];
+        const tones = chordNotesFromName(chord);
+        if (!tones.includes(mod(note.midi))) errors.push(voice + ' downbeat ' + note.pitch + ' does not fit ' + chord);
+      }
+    }
+  }
+  if (errors.length) throw new Error('Practice parts: ' + errors.join('; '));
+}
+function chordNotesFromName(name) {
+  const aliases = { Db: 'C#', Eb: 'D#', Gb: 'F#', Ab: 'G#', Bb: 'A#' };
+  const m = /^([A-G](?:#|b)?)(m?)$/.exec(name);
+  const pc = chrom.indexOf(aliases[m[1]] || m[1]);
+  return [pc, mod(pc + (m[2] === 'm' ? 3 : 4)), mod(pc + 7)];
+}
+function resolvePracticeNote(note) {
+  if (!note) return null;
+  const boxes = boxPositions();
+  if ((boxes[note.string] || []).includes(note.fret) && OPEN_MIDI[note.string] + note.fret === note.midi) {
+    return { s: note.string, f: note.fret, midi: note.midi };
+  }
+  const pc = mod(note.midi);
+  let best = null;
+  boxes.forEach((frets, s) => {
+    frets.forEach(f => {
+      const midi = OPEN_MIDI[s] + f;
+      if (mod(midi) !== pc) return;
+      const dist = Math.abs(midi - note.midi);
+      const bias = Math.abs(s - note.string);
+      if (!best || dist < best.dist || (dist === best.dist && bias < best.bias)) best = { s, f, midi, dist, bias };
+    });
+  });
+  return best;
+}
+function placesForMidi(midi, except) {
+  const max = +$('range').value;
+  const out = [];
+  for (let s = 0; s < 6; s++) {
+    const f = midi - OPEN_MIDI[s];
+    if (f < 0 || f > max || f > 24) continue;
+    if (except && except.s === s && except.f === f) continue;
+    out.push({ s, f, label: placeName(s, f) });
+  }
+  return out;
+}
+function practiceDuration(notes, beat) {
+  const loop = progression().length * 4;
+  let nextBeat = null;
+  for (const n of notes) {
+    if (n.beat > beat + 1e-6 && (nextBeat === null || n.beat < nextBeat)) nextBeat = n.beat;
+  }
+  if (nextBeat === null) {
+    let first = null;
+    for (const n of notes) if (first === null || n.beat < first) first = n.beat;
+    nextBeat = loop + (first || 0);
+  }
+  const offbeat = Math.abs((beat % 1) - 0.5) < 0.05;
+  return Math.min(nextBeat - beat, offbeat ? 0.5 : 1);
+}
+function chordAtBeat(beat) {
+  const chords = progression();
+  return chords[Math.floor(beat / 4) % chords.length] || '';
+}
+function beatLabel(beat) {
+  const barIndex = Math.floor(beat / 4);
+  const q = beat - barIndex * 4;
+  const whole = Math.floor(q);
+  const eighth = Math.abs(q - whole - 0.5) < 0.05;
+  return 'bar ' + (barIndex + 1) + ', beat ' + (whole + 1) + (eighth ? ' &' : '');
+}
+function fretPoint(s, f) {
+  return { x: f ? 54 + (f - 0.5) * 46 : 38, y: 39 + s * 29 };
+}
+function drawPracticeMarkers(svg, ns) {
+  if (!partMode) return;
+  const max = +$('range').value;
+  const voices = partMode === 'both' ? ['melody', 'lead'] : [partMode];
+  const groups = new Map();
+  for (const voice of voices) {
+    const cur = partCursor[voice];
+    if (!cur) continue;
+    const pos = resolvePracticeNote(cur.note);
+    if (!pos || pos.f < 0 || pos.f > max) continue;
+    const key = pos.s + ':' + pos.f;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push({ voice, pos });
+  }
+  for (const group of groups.values()) {
+    const pos = group[0].pos;
+    const melody = group.some(m => m.voice === 'melody');
+    const lead = group.some(m => m.voice === 'lead');
+    const { x, y } = fretPoint(pos.s, pos.f);
+    const c = document.createElementNS(ns, 'circle');
+    c.setAttribute('cx', x);
+    c.setAttribute('cy', y);
+    c.setAttribute('r', '17');
+    c.setAttribute('fill', melody ? PART_COLOR.melody : PART_COLOR.lead);
+    c.setAttribute('stroke', melody && lead ? PART_COLOR.lead : '#ffffff');
+    c.setAttribute('stroke-width', melody && lead ? '5' : '3');
+    c.dataset.practice = group.map(m => m.voice).join(',');
+    c.dataset.string = String(pos.s);
+    c.dataset.fret = String(pos.f);
+    c.dataset.pitch = pitchName(pos.midi);
+    svg.append(c);
+    if ($('names').checked) {
+      const t = document.createElementNS(ns, 'text');
+      t.setAttribute('x', x);
+      t.setAttribute('y', y + 4);
+      t.setAttribute('fill', 'white');
+      t.setAttribute('font-size', '11');
+      t.setAttribute('font-weight', 'bold');
+      t.setAttribute('text-anchor', 'middle');
+      t.textContent = displayLabel((tuning[pos.s] + pos.f) % 12, pos.f, pos.s);
+      svg.append(t);
+    }
+  }
+}
+function readoutNote(text) {
+  const p = document.createElement('p');
+  p.className = 'hint';
+  p.textContent = text;
+  return p;
+}
+function voiceCard(voice, event) {
+  const note = event.note;
+  const pos = resolvePracticeNote(note);
+  const sounding = pos ? pos.midi : note.midi;
+  const card = document.createElement('div');
+  card.className = 'partCard ' + voice;
+  card.dataset.voice = voice;
+  card.dataset.beat = String(note.beat);
+  card.dataset.midi = String(note.midi);
+  card.dataset.pitch = note.pitch;
+  card.dataset.chord = chordAtBeat(note.beat);
+  card.dataset.sounding = pitchName(sounding);
+  if (pos) {
+    card.dataset.string = String(pos.s);
+    card.dataset.fret = String(pos.f);
+  }
+  const kicker = document.createElement('div');
+  kicker.className = 'partKicker';
+  kicker.textContent = (voice === 'melody' ? 'Melody' : 'Lead') + ' · ' + chordAtBeat(note.beat) + ' chord · ' + beatLabel(note.beat);
+  const pitch = document.createElement('div');
+  pitch.className = 'partPitch';
+  pitch.textContent = note.pitch;
+  const where = document.createElement('p');
+  where.className = 'partWhere';
+  if (!pos) where.textContent = 'No fingering for ' + pitchName(note.midi) + ' in this shape.';
+  else if (pos.f > +$('range').value) where.textContent = 'Suggested ' + placeName(pos.s, pos.f) + ' is past the frets currently shown.';
+  else {
+    const finger = pos.f === 0 ? 'open string' : 'finger ' + fingerFor(pos.f, pos.s);
+    where.textContent = 'This shape (box ' + (selectedBox + 1) + '): ' + placeName(pos.s, pos.f) + ' · ' + finger;
+    if (pos.midi !== note.midi) where.textContent += '. Written ' + note.pitch + ' is outside this shape, so this box plays ' + pitchName(pos.midi) + '.';
+  }
+  const alts = placesForMidi(note.midi, pos && pos.midi === note.midi ? pos : null);
+  card.dataset.places = alts.map(p => p.s + ':' + p.f).join(',');
+  const places = document.createElement('p');
+  places.className = 'partPlaces';
+  places.textContent = alts.length
+    ? 'Other places for this ' + note.pitch + ': ' + alts.map(p => p.label).join(' · ')
+    : 'No other place for this ' + note.pitch + ' in the current fret range.';
+  card.append(kicker, pitch, where, places);
+  return card;
+}
+function readoutKey() {
+  if (!isBelievinLoop()) return 'off';
+  if (!partMode) return 'idle';
+  const range = $('range').value;
+  return ['melody', 'lead'].map(voice => {
+    if (partMode !== 'both' && partMode !== voice) return voice + ':hidden';
+    const cur = partCursor[voice];
+    if (!cur) return voice + ':wait';
+    const pos = resolvePracticeNote(cur.note);
+    return voice + ':' + cur.note.beat + ':' + (pos ? pos.s + '.' + pos.f + '.' + pos.midi : 'x') + ':' + range + ':' + selectedBox + ':' + $('boxOctave').value;
+  }).join('|');
+}
+function renderPartReadout() {
+  const el = $('partReadout');
+  if (!el) return;
+  const key = readoutKey();
+  if (key === partReadoutKey) return;
+  partReadoutKey = key;
+  el.replaceChildren();
+  if (!isBelievinLoop() || !partMode) {
+    if (isBelievinLoop()) el.append(readoutNote('Pick Play melody, Play lead, or Both. If the track is stopped, that starts it from the top. If it is already playing, the part joins in place and stays locked to the clock.'));
+    return;
+  }
+  const voices = partMode === 'both' ? ['melody', 'lead'] : [partMode];
+  let any = false;
+  for (const voice of voices) {
+    if (!partCursor[voice]) continue;
+    any = true;
+    el.append(voiceCard(voice, partCursor[voice]));
+  }
+  if (!any) {
+    const label = partMode === 'both' ? 'Melody and lead are' : partMode === 'lead' ? 'Lead is' : 'Melody is';
+    el.append(readoutNote(label + ' locked to the backing track, waiting for the next note.'));
+  }
+}
+function updatePartButtons() {
+  const map = { melody: 'playMelody', lead: 'playLeadPart', both: 'playBothParts' };
+  for (const [mode, id] of Object.entries(map)) {
+    const button = $(id);
+    const on = partMode === mode;
+    button.classList.toggle('active', on);
+    button.setAttribute('aria-pressed', String(on));
+  }
+}
+function clearPracticeParts() {
+  partMode = null;
+  partGen++;
+  partEvents = [];
+  partCursor = { melody: null, lead: null };
+  updatePartButtons();
+}
+function updatePracticePanel() {
+  const on = isBelievinLoop();
+  $('songParts').hidden = !on;
+  $('guidedPanel').hidden = on;
+  if (on) {
+    guided = false;
+    leadTimers.forEach(clearTimeout);
+    leadTimers = [];
+    leadPosition = null;
+    const demo = $('demo');
+    if (demo) demo.textContent = '▶ Start guided melody';
+  } else clearPracticeParts();
+  partReadoutKey = '';
+  renderPartReadout();
+}
+let partArming = false;
+async function startPractice(mode) {
+  if (!isBelievinLoop() || partArming) return;
+  partArming = true;
+  try {
+    partMode = mode;
+    partGen++;
+    partEvents = [];
+    partCursor = { melody: null, lead: null };
+    guided = false;
+    leadTimers.forEach(clearTimeout);
+    leadTimers = [];
+    leadPosition = null;
+    updatePartButtons();
+    const shouldStart = !playing;
+    partReadoutKey = '';
+    neck();
+    if (shouldStart) await $('play').onclick();
+  } finally {
+    partArming = false;
+  }
+}
+function schedulePracticeParts(loopBeat, at, sec) {
+  if (!partMode || !isBelievinLoop() || !ctx) return;
+  const gen = partGen;
+  const voices = partMode === 'both' ? ['melody', 'lead'] : [partMode];
+  for (const voice of voices) {
+    const notes = PRACTICE_PARTS[voice];
+    for (const note of notes) {
+      const rel = note.beat - loopBeat;
+      if (rel < -1e-6 || rel >= 1 - 1e-6) continue;
+      const start = at + rel * sec;
+      if (partEvents.some(e => e.gen === gen && e.voice === voice && e.note === note && Math.abs(e.start - start) < 1e-4)) continue;
+      const durBeats = practiceDuration(notes, note.beat);
+      partEvents.push({ gen, voice, note, start, end: start + durBeats * sec });
+      const pos = resolvePracticeNote(note);
+      if (pos) partTone(pos, start, durBeats * sec, voice);
+    }
+  }
+}
+function sameCursor(a, b) {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  return a.note === b.note && a.start === b.start && a.voice === b.voice;
+}
+function syncPracticeCursor() {
+  if (!partMode || !playing || !ctx) return;
+  const now = ctx.currentTime + 0.02;
+  const gen = partGen;
+  partEvents = partEvents.filter(e => e.gen === gen && e.end > now - 0.25);
+  const next = { melody: null, lead: null };
+  for (const event of partEvents) {
+    if (now < event.start || now >= event.end) continue;
+    const current = next[event.voice];
+    if (!current || event.start >= current.start) next[event.voice] = event;
+  }
+  if (sameCursor(partCursor.melody, next.melody) && sameCursor(partCursor.lead, next.lead)) return;
+  partCursor = next;
+  neck();
+}
+function partTone(pos, at, dur, voice) {
+  const midi = OPEN_MIDI[pos.s] + pos.f;
+  const length = Math.max(0.16, Math.min(dur * 0.92, voice === 'melody' ? 0.72 : 0.48));
+  guitarString(hz(midi), at, voice === 'melody' ? 0.62 : 0.8, { lead: true, duration: length, voice });
 }
 
 const hz = midi => 440 * Math.pow(2, (midi - 69) / 12);
@@ -764,12 +1184,20 @@ function guitarString(freq, at, velocity = .6, opts = {}) {
   stringGain.gain.linearRampToValueAtTime(peak, at + (palm ? 0.002 : 0.004));
   if (!palm && dur > 0.12) stringGain.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak * 0.55), at + 0.08);
   stringGain.gain.exponentialRampToValueAtTime(0.0001, at + Math.max(0.05, dur));
-  stringGain.connect(lead ? master : chordBus(at));
+  let dest = lead ? master : chordBus(at);
+  if (opts.voice && typeof ctx.createStereoPanner === 'function') {
+    const panner = ctx.createStereoPanner();
+    panner.pan.setValueAtTime(opts.voice === 'melody' ? -0.32 : 0.34, at);
+    panner.connect(dest);
+    dest = panner;
+  }
+  stringGain.connect(dest);
   const lp = ctx.createBiquadFilter();
   lp.type = 'lowpass';
   const midi = 69 + 12 * Math.log2(freq / 440);
   const tilt = Math.max(0.55, Math.min(1.2, midi / 68));
-  const open = palm ? 650 + velocity * 500 : Math.min(7600, (1500 + velocity * 3600) * tilt);
+  const voiceBright = opts.voice === 'melody' ? 0.75 : opts.voice === 'lead' ? 1.2 : 1;
+  const open = palm ? 650 + velocity * 500 : Math.min(7600, (1500 + velocity * 3600) * tilt * voiceBright);
   const shut = palm ? 420 : Math.max(480, (800 + velocity * 350) * tilt);
   lp.frequency.setValueAtTime(open, at);
   lp.frequency.exponentialRampToValueAtTime(Math.max(80, shut), at + (palm ? 0.05 : 0.22));
@@ -815,7 +1243,8 @@ function guitarString(freq, at, velocity = .6, opts = {}) {
   bp.frequency.value = tone === 'acoustic' ? 3400 : tone === 'clean' ? 2400 : 1700;
   bp.Q.value = 0.7;
   const pg = ctx.createGain();
-  const pickAmp = (lead ? 0.03 : 0.04 * mix('guitar')) * velocity * (palm ? 1.35 : 1);
+  const pickScale = !lead ? 0.04 * mix('guitar') : opts.voice === 'lead' ? 0.05 : opts.voice === 'melody' ? 0.02 : 0.03;
+  const pickAmp = pickScale * velocity * (palm ? 1.35 : 1);
   pg.gain.setValueAtTime(Math.max(0.0002, pickAmp), at);
   pg.gain.exponentialRampToValueAtTime(0.0001, at + (tone === 'acoustic' ? 0.018 : 0.028));
   pick.connect(bp).connect(pg).connect(stringGain);
@@ -970,7 +1399,8 @@ function schedule(b, at) {
       drumHit('snare', at + sec * .75, .75);
     }
   }
-  if (guided) leadBeat(c, within, at, sec);
+  if (guided && !partMode) leadBeat(c, within, at, sec);
+  if (partMode) schedulePracticeParts(b, at, sec);
   if ($('click').checked) tick(at);
 }
 function advance() {
@@ -1024,6 +1454,7 @@ $('play').onclick = async () => {
 };
 $('stop').onclick = () => {
   playing = false; guided = false; armed = false; countUntil = 0;
+  clearPracticeParts();
   leadTimers.forEach(clearTimeout); leadTimers = [];
   clearInterval(timer); timer = null;
   if (master && ctx) master.gain.setTargetAtTime(.0001, ctx.currentTime, .035);
@@ -1043,6 +1474,7 @@ $('progression').onchange = () => {
   labChord = progression()[0];
   labSequence = []; labIndex = 0;
   refreshHarmony();
+  updatePracticePanel();
   showBoxes();
   labChordButtons();
   paintTransport();
@@ -1260,10 +1692,21 @@ $('handTempo').oninput = () => {
   if (labRunning) { labStop(); $('labPlay').click(); }
 };
 
+$('playMelody').onclick = () => startPractice('melody');
+$('playLeadPart').onclick = () => startPractice('lead');
+$('playBothParts').onclick = () => startPractice('both');
+$('stopParts').onclick = () => {
+  clearPracticeParts();
+  partReadoutKey = '';
+  neck();
+  drawLeadSteps();
+};
+validatePracticeParts();
 refreshHarmony();
 showBoxes();
 labChordButtons();
 applyFilter('pent');
+updatePracticePanel();
 paintTransport();
 neck();
 drawLeadSteps();
